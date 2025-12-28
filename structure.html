@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bitcoin Overview Dashboard</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#111418", 
+                        "surface-dark": "#283039",
+                        "surface-light": "#ffffff",
+                        "text-secondary": "#9dabb9",
+                        "success": "#0bda5b",
+                        "danger": "#ef4444",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111418; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3b4754; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4b5966; 
+        }.no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased selection:bg-primary selection:text-white overflow-x-hidden">
+<div class="flex flex-col min-h-screen">
+<header class="sticky top-0 z-50 flex items-center justify-between border-b border-solid border-slate-200 dark:border-[#283039] bg-surface-light dark:bg-background-dark px-6 py-3">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-slate-900 dark:text-white">
+<div class="flex h-8 w-8 items-center justify-center rounded bg-primary text-white">
+<span class="material-symbols-outlined text-xl">currency_bitcoin</span>
+</div>
+<h2 class="text-xl font-bold leading-tight tracking-tight">BitDash</h2>
+</div>
+<div class="hidden md:flex flex-col min-w-[240px] lg:min-w-[320px]">
+<div class="flex w-full items-center rounded-lg bg-slate-100 dark:bg-surface-dark h-10 px-3 gap-2">
+<span class="material-symbols-outlined text-text-secondary">search</span>
+<input class="flex-1 bg-transparent border-none focus:ring-0 p-0 text-sm text-slate-900 dark:text-white placeholder:text-text-secondary" placeholder="Search metrics, tickers..." value=""/>
+<div class="flex items-center justify-center rounded bg-slate-200 dark:bg-[#3b4754] px-1.5 py-0.5 text-xs font-medium text-text-secondary">⌘K</div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4 lg:gap-8">
+<nav class="hidden lg:flex items-center gap-6">
+<a class="text-sm font-bold text-slate-900 dark:text-white" href="#">Dashboard</a>
+<a class="text-sm font-medium text-text-secondary hover:text-primary transition-colors" href="#">Markets</a>
+<a class="text-sm font-medium text-text-secondary hover:text-primary transition-colors" href="#">On-Chain</a>
+<a class="text-sm font-medium text-text-secondary hover:text-primary transition-colors" href="#">Derivatives</a>
+</nav>
+<div class="flex gap-2">
+<button class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 dark:bg-surface-dark hover:bg-slate-200 dark:hover:bg-[#3b4754] transition-colors relative group">
+<span class="material-symbols-outlined text-text-secondary group-hover:text-white">notifications</span>
+<span class="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-danger border-2 border-surface-dark"></span>
+</button>
+<button class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 dark:bg-surface-dark hover:bg-slate-200 dark:hover:bg-[#3b4754] transition-colors group">
+<span class="material-symbols-outlined text-text-secondary group-hover:text-white">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<main class="flex-1 p-4 lg:p-6 xl:p-8 max-w-[1600px] mx-auto w-full flex flex-col gap-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+<div class="relative group z-10">
+<input class="peer hidden" id="modal-price" type="checkbox"/>
+<label class="cursor-pointer block h-full select-none" for="modal-price">
+<div class="h-full flex flex-col gap-1 rounded-2xl bg-gradient-to-br from-white to-slate-50 dark:from-[#2e3742] dark:to-[#222931] p-5 shadow-[0_4px_0_0_rgba(203,213,225,1)] dark:shadow-[0_4px_0_0_rgba(17,20,24,0.5)] border-t border-l border-white/60 dark:border-white/10 active:translate-y-1 active:shadow-none transition-all duration-150 ease-out hover:brightness-105">
+<div class="flex justify-between items-start">
+<p class="text-text-secondary text-sm font-bold uppercase tracking-wider">Bitcoin Price</p>
+<div class="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary shadow-inner">
+<span class="material-symbols-outlined text-[20px]">attach_money</span>
+</div>
+</div>
+<p class="text-slate-900 dark:text-white text-2xl font-black tracking-tight mt-2">$64,231.50</p>
+<div class="flex items-center gap-1 text-success text-sm font-bold bg-success/10 w-fit px-2 py-0.5 rounded-full mt-1">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span>+2.45%</span>
+</div>
+</div>
+</label>
+<label class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden peer-checked:block animate-in fade-in duration-200 cursor-default" for="modal-price"></label>
+<div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[90%] max-w-sm hidden peer-checked:block animate-in zoom-in-95 duration-200">
+<div class="relative bg-white dark:bg-[#1c2229] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-6">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-xl font-bold text-slate-900 dark:text-white">Price Details</h3>
+<label class="text-text-secondary hover:text-primary cursor-pointer transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800" for="modal-price">
+<span class="material-symbols-outlined">close</span>
+</label>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-[#111418]">
+<span class="text-text-secondary text-sm">24h High</span>
+<span class="font-bold text-slate-900 dark:text-white">$65,102.40</span>
+</div>
+<div class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-[#111418]">
+<span class="text-text-secondary text-sm">24h Low</span>
+<span class="font-bold text-slate-900 dark:text-white">$63,200.15</span>
+</div>
+<div class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-[#111418]">
+<span class="text-text-secondary text-sm">All Time High</span>
+<div class="text-right">
+<span class="block font-bold text-slate-900 dark:text-white">$73,750.07</span>
+<span class="text-xs text-danger">-12.8%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="relative group z-10">
+<input class="peer hidden" id="modal-volume" type="checkbox"/>
+<label class="cursor-pointer block h-full select-none" for="modal-volume">
+<div class="h-full flex flex-col gap-1 rounded-2xl bg-gradient-to-br from-white to-slate-50 dark:from-[#2e3742] dark:to-[#222931] p-5 shadow-[0_4px_0_0_rgba(203,213,225,1)] dark:shadow-[0_4px_0_0_rgba(17,20,24,0.5)] border-t border-l border-white/60 dark:border-white/10 active:translate-y-1 active:shadow-none transition-all duration-150 ease-out hover:brightness-105">
+<div class="flex justify-between items-start">
+<p class="text-text-secondary text-sm font-bold uppercase tracking-wider">24h Volume</p>
+<div class="h-8 w-8 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500 shadow-inner">
+<span class="material-symbols-outlined text-[20px]">bar_chart</span>
+</div>
+</div>
+<p class="text-slate-900 dark:text-white text-2xl font-black tracking-tight mt-2">$34.1B</p>
+<div class="flex items-center gap-1 text-danger text-sm font-bold bg-danger/10 w-fit px-2 py-0.5 rounded-full mt-1">
+<span class="material-symbols-outlined text-sm">trending_down</span>
+<span>-5.2%</span>
+</div>
+</div>
+</label>
+<label class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden peer-checked:block animate-in fade-in duration-200 cursor-default" for="modal-volume"></label>
+<div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[90%] max-w-sm hidden peer-checked:block animate-in zoom-in-95 duration-200">
+<div class="relative bg-white dark:bg-[#1c2229] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-6">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-xl font-bold text-slate-900 dark:text-white">Volume Analytics</h3>
+<label class="text-text-secondary hover:text-primary cursor-pointer transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800" for="modal-volume">
+<span class="material-symbols-outlined">close</span>
+</label>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-[#111418]">
+<span class="text-text-secondary text-sm">Spot Volume</span>
+<span class="font-bold text-slate-900 dark:text-white">$12.1B</span>
+</div>
+<div class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-[#111418]">
+<span class="text-text-secondary text-sm">Derivatives Vol</span>
+<span class="font-bold text-slate-900 dark:text-white">$22.0B</span>
+</div>
+<div class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-[#111418]">
+<span class="text-text-secondary text-sm">Binance Share</span>
+<span class="font-bold text-success">45.2%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="relative group z-10">
+<input class="peer hidden" id="modal-mcap" type="checkbox"/>
+<label class="cursor-pointer block h-full select-none" for="modal-mcap">
+<div class="h-full flex flex-col gap-1 rounded-2xl bg-gradient-to-br from-white to-slate-50 dark:from-[#2e3742] dark:to-[#222931] p-5 shadow-[0_4px_0_0_rgba(203,213,225,1)] dark:shadow-[0_4px_0_0_rgba(17,20,24,0.5)] border-t border-l border-white/60 dark:border-white/10 active:translate-y-1 active:shadow-none transition-all duration-150 ease-out hover:brightness-105">
+<div class="flex justify-between items-start">
+<p class="text-text-secondary text-sm font-bold uppercase tracking-wider">Market Cap</p>
+<div class="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 shadow-inner">
+<span class="material-symbols-outlined text-[20px]">pie_chart</span>
+</div>
+</div>
+<p class="text-slate-900 dark:text-white text-2xl font-black tracking-tight mt-2">$1.24T</p>
+<div class="flex items-center gap-1 text-success text-sm font-bold bg-success/10 w-fit px-2 py-0.5 rounded-full mt-1">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span>+1.8%</span>
+</div>
+</div>
+</label>
+<label class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden peer-checked:block animate-in fade-in duration-200 cursor-default" for="modal-mcap"></label>
+<div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[90%] max-w-sm hidden peer-checked:block animate-in zoom-in-95 duration-200">
+<div class="relative bg-white dark:bg-[#1c2229] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-6">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-xl font-bold text-slate-900 dark:text-white">Market Dominance</h3>
+<label class="text-text-secondary hover:text-primary cursor-pointer transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800" for="modal-mcap">
+<span class="material-symbols-outlined">close</span>
+</label>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-[#111418]">
+<span class="text-text-secondary text-sm">BTC Dominance</span>
+<span class="font-bold text-slate-900 dark:text-white">54.2%</span>
+</div>
+<div class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-[#111418]">
+<span class="text-text-secondary text-sm">FDV</span>
+<span class="font-bold text-slate-900 dark:text-white">$1.35T</span>
+</div>
+<div class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-[#111418]">
+<span class="text-text-secondary text-sm">Circulating Supply</span>
+<span class="font-bold text-slate-900 dark:text-white">19.7M BTC</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="relative group z-10">
+<input class="peer hidden" id="modal-oi" type="checkbox"/>
+<label class="cursor-pointer block h-full select-none" for="modal-oi">
+<div class="h-full flex flex-col gap-1 rounded-2xl bg-gradient-to-br from-white to-slate-50 dark:from-[#2e3742] dark:to-[#222931] p-5 shadow-[0_4px_0_0_rgba(203,213,225,1)] dark:shadow-[0_4px_0_0_rgba(17,20,24,0.5)] border-t border-l border-white/60 dark:border-white/10 active:translate-y-1 active:shadow-none transition-all duration-150 ease-out hover:brightness-105">
+<div class="flex justify-between items-start">
+<p class="text-text-secondary text-sm font-bold uppercase tracking-wider">Open Interest</p>
+<div class="h-8 w-8 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 shadow-inner">
+<span class="material-symbols-outlined text-[20px]">candlestick_chart</span>
+</div>
+</div>
+<p class="text-slate-900 dark:text-white text-2xl font-black tracking-tight mt-2">$14.8B</p>
+<div class="flex items-center gap-1 text-success text-sm font-bold bg-success/10 w-fit px-2 py-0.5 rounded-full mt-1">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span>+4.2%</span>
+</div>
+</div>
+</label>
+<label class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden peer-checked:block animate-in fade-in duration-200 cursor-default" for="modal-oi"></label>
+<div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[90%] max-w-sm hidden peer-checked:block animate-in zoom-in-95 duration-200">
+<div class="relative bg-white dark:bg-[#1c2229] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-6">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-xl font-bold text-slate-900 dark:text-white">Derivatives Data</h3>
+<label class="text-text-secondary hover:text-primary cursor-pointer transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800" for="modal-oi">
+<span class="material-symbols-outlined">close</span>
+</label>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-[#111418]">
+<span class="text-text-secondary text-sm">Long/Short Ratio</span>
+<span class="font-bold text-success">1.04</span>
+</div>
+<div class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-[#111418]">
+<span class="text-text-secondary text-sm">Top Exchange</span>
+<span class="font-bold text-slate-900 dark:text-white">Binance ($4.2B)</span>
+</div>
+<div class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-[#111418]">
+<span class="text-text-secondary text-sm">1h Change</span>
+<span class="font-bold text-success">+0.5%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+<div class="xl:col-span-8 flex flex-col gap-6">
+<div class="flex flex-col rounded-xl bg-surface-light dark:bg-surface-dark shadow-sm border border-slate-200 dark:border-transparent overflow-hidden">
+<div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 dark:border-[#3b4754] p-4 lg:px-6">
+<div class="flex flex-col">
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Price Action &amp; Volume</h3>
+<p class="text-xs text-text-secondary">BTC/USD - Aggregated Spot</p>
+</div>
+<div class="flex gap-2">
+<button class="h-8 px-4 rounded-lg bg-transparent hover:bg-slate-200 dark:hover:bg-[#3b4754] text-text-secondary hover:text-slate-900 dark:hover:text-white text-sm font-medium transition-colors">1H</button>
+<button class="h-8 px-4 rounded-lg bg-transparent hover:bg-slate-200 dark:hover:bg-[#3b4754] text-text-secondary hover:text-slate-900 dark:hover:text-white text-sm font-medium transition-colors">4H</button>
+<button class="h-8 px-4 rounded-lg bg-primary text-white text-sm font-medium shadow-sm">1D</button>
+<button class="h-8 px-4 rounded-lg bg-transparent hover:bg-slate-200 dark:hover:bg-[#3b4754] text-text-secondary hover:text-slate-900 dark:hover:text-white text-sm font-medium transition-colors">1W</button>
+</div>
+</div>
+<div class="relative h-[400px] w-full p-6 bg-gradient-to-b from-transparent to-primary/5">
+<svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 800 300">
+<line stroke="#3b4754" stroke-dasharray="4 4" stroke-width="0.5" x1="0" x2="800" y1="50" y2="50"></line>
+<line stroke="#3b4754" stroke-dasharray="4 4" stroke-width="0.5" x1="0" x2="800" y1="125" y2="125"></line>
+<line stroke="#3b4754" stroke-dasharray="4 4" stroke-width="0.5" x1="0" x2="800" y1="200" y2="200"></line>
+<line stroke="#3b4754" stroke-dasharray="4 4" stroke-width="0.5" x1="0" x2="800" y1="275" y2="275"></line>
+<g opacity="0.2">
+<rect fill="#0bda5b" height="80" width="10" x="10" y="220"></rect>
+<rect fill="#ef4444" height="50" width="10" x="30" y="250"></rect>
+<rect fill="#0bda5b" height="100" width="10" x="50" y="200"></rect>
+<rect fill="#0bda5b" height="60" width="10" x="70" y="240"></rect>
+<rect fill="#ef4444" height="40" width="10" x="90" y="260"></rect>
+<rect fill="#0bda5b" height="120" width="10" x="110" y="180"></rect>
+<rect fill="#ef4444" height="70" width="10" x="130" y="230"></rect>
+<rect fill="#0bda5b" height="50" width="10" x="150" y="250"></rect>
+<rect fill="#0bda5b" height="90" width="10" x="170" y="210"></rect>
+<rect fill="#ef4444" height="110" width="10" x="190" y="190"></rect>
+<path d="M210 300 L210 240 L790 240 L790 300 Z" fill="#3b4754" opacity="0.5"></path>
+</g>
+<path d="M0,250 C50,240 100,200 150,220 S250,150 300,180 S400,100 450,120 S550,50 600,80 S700,20 800,40" fill="none" stroke="#137fec" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+<linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#137fec" stop-opacity="0.2"></stop>
+<stop offset="100%" stop-color="#137fec" stop-opacity="0"></stop>
+</linearGradient>
+<path d="M0,250 C50,240 100,200 150,220 S250,150 300,180 S400,100 450,120 S550,50 600,80 S700,20 800,40 V300 H0 Z" fill="url(#chartGradient)"></path>
+<circle cx="800" cy="40" fill="#137fec" r="4" stroke="white" stroke-width="2"></circle>
+</svg>
+<div class="absolute top-10 left-[60%] bg-surface-dark border border-[#3b4754] rounded-lg p-3 shadow-lg pointer-events-none">
+<p class="text-xs text-text-secondary mb-1">Oct 12, 14:00</p>
+<p class="text-sm font-bold text-white">$63,840.20</p>
+<p class="text-xs text-success">+1.2%</p>
+</div>
+<div class="absolute bottom-4 right-6 text-xs text-text-secondary font-medium">Local Time</div>
+<img class="hidden" data-alt="Abstract subtle gradient background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUN1XrQhMPrlmCORf-ei0osk9j9qyGoM5iYsBggTqLoWAnxs2IPyxk2OQtVeEYoj_hxxpyPo_e7D4KysR9KMBilmgh8B67RUu2QH1rwC9zdN9Or-un4HKzL40oEc9wuXGDS6ZdkI5FcIl1LLCxhx_w-0z7yVaglWnMOo11NzAZ9tcetpyFx3-Mwex-_YTZb7-5eSYpa4H83WJTH5gbtNxCWA4ZPzllkOGPRY_BWOHmUk_oHnDTq5nPGBByrnMvlrQtmIQyAFzz"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="relative group z-10">
+<input class="peer hidden" id="modal-mvrv" type="checkbox"/>
+<label class="cursor-pointer block h-full select-none" for="modal-mvrv">
+<div class="h-full flex flex-col gap-3 rounded-2xl bg-gradient-to-br from-white to-slate-50 dark:from-[#2e3742] dark:to-[#222931] p-5 shadow-[0_4px_0_0_rgba(203,213,225,1)] dark:shadow-[0_4px_0_0_rgba(17,20,24,0.5)] border-t border-l border-white/60 dark:border-white/10 active:translate-y-1 active:shadow-none transition-all duration-150 ease-out hover:brightness-105">
+<div class="flex justify-between items-center">
+<p class="text-text-secondary text-sm font-bold uppercase tracking-wider">MVRV Ratio</p>
+<span class="material-symbols-outlined text-text-secondary text-lg">info</span>
+</div>
+<div class="flex items-end gap-2">
+<p class="text-slate-900 dark:text-white text-2xl font-black">1.84</p>
+<span class="text-xs font-bold bg-orange-500/10 text-orange-400 px-2 py-0.5 rounded mb-1">Neutral</span>
+</div>
+<div class="h-8 w-full flex items-end gap-0.5 mt-auto">
+<div class="bg-primary/40 h-[40%] w-full rounded-sm"></div>
+<div class="bg-primary/50 h-[60%] w-full rounded-sm"></div>
+<div class="bg-primary/30 h-[30%] w-full rounded-sm"></div>
+<div class="bg-primary/60 h-[70%] w-full rounded-sm"></div>
+<div class="bg-primary h-[50%] w-full rounded-sm"></div>
+</div>
+</div>
+</label>
+<label class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden peer-checked:block animate-in fade-in duration-200 cursor-default" for="modal-mvrv"></label>
+<div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[90%] max-w-sm hidden peer-checked:block animate-in zoom-in-95 duration-200">
+<div class="relative bg-white dark:bg-[#1c2229] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-6">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-xl font-bold text-slate-900 dark:text-white">On-Chain Valuation</h3>
+<label class="text-text-secondary hover:text-primary cursor-pointer transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800" for="modal-mvrv">
+<span class="material-symbols-outlined">close</span>
+</label>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-[#111418]">
+<span class="text-text-secondary text-sm">Z-Score</span>
+<span class="font-bold text-slate-900 dark:text-white">1.2</span>
+</div>
+<div class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-[#111418]">
+<span class="text-text-secondary text-sm">Realized Price</span>
+<span class="font-bold text-slate-900 dark:text-white">$29,500</span>
+</div>
+<div class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-[#111418]">
+<span class="text-text-secondary text-sm">STH MVRV</span>
+<span class="font-bold text-slate-900 dark:text-white">1.02</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="relative group z-10">
+<input class="peer hidden" id="modal-active" type="checkbox"/>
+<label class="cursor-pointer block h-full select-none" for="modal-active">
+<div class="h-full flex flex-col gap-3 rounded-2xl bg-gradient-to-br from-white to-slate-50 dark:from-[#2e3742] dark:to-[#222931] p-5 shadow-[0_4px_0_0_rgba(203,213,225,1)] dark:shadow-[0_4px_0_0_rgba(17,20,24,0.5)] border-t border-l border-white/60 dark:border-white/10 active:translate-y-1 active:shadow-none transition-all duration-150 ease-out hover:brightness-105">
+<div class="flex justify-between items-center">
+<p class="text-text-secondary text-sm font-bold uppercase tracking-wider">Active Addresses</p>
+<span class="material-symbols-outlined text-text-secondary text-lg">info</span>
+</div>
+<div class="flex items-end gap-2">
+<p class="text-slate-900 dark:text-white text-2xl font-black">892K</p>
+<span class="text-xs font-bold text-success mb-1">↑ 5%</span>
+</div>
+<div class="h-8 w-full flex items-end gap-0.5 mt-auto">
+<div class="bg-success/40 h-[20%] w-full rounded-sm"></div>
+<div class="bg-success/50 h-[30%] w-full rounded-sm"></div>
+<div class="bg-success/30 h-[25%] w-full rounded-sm"></div>
+<div class="bg-success/60 h-[45%] w-full rounded-sm"></div>
+<div class="bg-success h-[60%] w-full rounded-sm"></div>
+</div>
+</div>
+</label>
+<label class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden peer-checked:block animate-in fade-in duration-200 cursor-default" for="modal-active"></label>
+<div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[90%] max-w-sm hidden peer-checked:block animate-in zoom-in-95 duration-200">
+<div class="relative bg-white dark:bg-[#1c2229] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-6">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-xl font-bold text-slate-900 dark:text-white">Network Activity</h3>
+<label class="text-text-secondary hover:text-primary cursor-pointer transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800" for="modal-active">
+<span class="material-symbols-outlined">close</span>
+</label>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-[#111418]">
+<span class="text-text-secondary text-sm">New Addresses</span>
+<span class="font-bold text-slate-900 dark:text-white">340K</span>
+</div>
+<div class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-[#111418]">
+<span class="text-text-secondary text-sm">Zero Balance</span>
+<span class="font-bold text-slate-900 dark:text-white">45M</span>
+</div>
+<div class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-[#111418]">
+<span class="text-text-secondary text-sm">Tx Count (24h)</span>
+<span class="font-bold text-success">450K</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="relative group z-10">
+<input class="peer hidden" id="modal-hash" type="checkbox"/>
+<label class="cursor-pointer block h-full select-none" for="modal-hash">
+<div class="h-full flex flex-col gap-3 rounded-2xl bg-gradient-to-br from-white to-slate-50 dark:from-[#2e3742] dark:to-[#222931] p-5 shadow-[0_4px_0_0_rgba(203,213,225,1)] dark:shadow-[0_4px_0_0_rgba(17,20,24,0.5)] border-t border-l border-white/60 dark:border-white/10 active:translate-y-1 active:shadow-none transition-all duration-150 ease-out hover:brightness-105">
+<div class="flex justify-between items-center">
+<p class="text-text-secondary text-sm font-bold uppercase tracking-wider">Hash Rate</p>
+<span class="material-symbols-outlined text-text-secondary text-lg">info</span>
+</div>
+<div class="flex items-end gap-2">
+<p class="text-slate-900 dark:text-white text-2xl font-black">580 EH/s</p>
+<span class="text-xs font-bold text-success mb-1">↑ 1%</span>
+</div>
+<div class="h-8 w-full flex items-end gap-0.5 mt-auto">
+<div class="bg-purple-500/40 h-[70%] w-full rounded-sm"></div>
+<div class="bg-purple-500/50 h-[75%] w-full rounded-sm"></div>
+<div class="bg-purple-500/30 h-[72%] w-full rounded-sm"></div>
+<div class="bg-purple-500/60 h-[80%] w-full rounded-sm"></div>
+<div class="bg-purple-500 h-[85%] w-full rounded-sm"></div>
+</div>
+</div>
+</label>
+<label class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden peer-checked:block animate-in fade-in duration-200 cursor-default" for="modal-hash"></label>
+<div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[90%] max-w-sm hidden peer-checked:block animate-in zoom-in-95 duration-200">
+<div class="relative bg-white dark:bg-[#1c2229] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-6">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-xl font-bold text-slate-900 dark:text-white">Mining Stats</h3>
+<label class="text-text-secondary hover:text-primary cursor-pointer transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800" for="modal-hash">
+<span class="material-symbols-outlined">close</span>
+</label>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-[#111418]">
+<span class="text-text-secondary text-sm">Difficulty</span>
+<span class="font-bold text-slate-900 dark:text-white">84.02 T</span>
+</div>
+<div class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-[#111418]">
+<span class="text-text-secondary text-sm">Next Adjustment</span>
+<span class="font-bold text-success">+2.1% (Est)</span>
+</div>
+<div class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-[#111418]">
+<span class="text-text-secondary text-sm">Miner Rev (24h)</span>
+<span class="font-bold text-slate-900 dark:text-white">$34.2M</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col rounded-xl bg-surface-light dark:bg-surface-dark shadow-sm border border-slate-200 dark:border-transparent overflow-hidden">
+<div class="flex items-center justify-between p-4 lg:px-6 border-b border-slate-200 dark:border-[#3b4754]">
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Top Derivatives Markets</h3>
+<button class="text-sm text-primary font-bold hover:underline">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-sm whitespace-nowrap">
+<thead class="bg-slate-50 dark:bg-[#202933] text-text-secondary font-medium">
+<tr>
+<th class="px-6 py-3">Exchange</th>
+<th class="px-6 py-3">Pair</th>
+<th class="px-6 py-3">Price</th>
+<th class="px-6 py-3">24h Vol</th>
+<th class="px-6 py-3">Funding Rate</th>
+<th class="px-6 py-3 text-right">Open Interest</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-200 dark:divide-[#3b4754]">
+<tr class="hover:bg-slate-50 dark:hover:bg-[#202933]/50 transition-colors">
+<td class="px-6 py-4 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-500 text-xs font-bold">B</div>
+<span class="font-medium text-slate-900 dark:text-white">Binance</span>
+</td>
+<td class="px-6 py-4 text-text-secondary">BTCUSDT</td>
+<td class="px-6 py-4 font-medium text-slate-900 dark:text-white">$64,240.00</td>
+<td class="px-6 py-4 text-text-secondary">$12.4B</td>
+<td class="px-6 py-4 text-success">0.0100%</td>
+<td class="px-6 py-4 text-right font-medium text-slate-900 dark:text-white">$4.2B</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-[#202933]/50 transition-colors">
+<td class="px-6 py-4 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-slate-500/20 flex items-center justify-center text-slate-400 text-xs font-bold">O</div>
+<span class="font-medium text-slate-900 dark:text-white">OKX</span>
+</td>
+<td class="px-6 py-4 text-text-secondary">BTC-USDT-SWAP</td>
+<td class="px-6 py-4 font-medium text-slate-900 dark:text-white">$64,235.50</td>
+<td class="px-6 py-4 text-text-secondary">$5.1B</td>
+<td class="px-6 py-4 text-success">0.0098%</td>
+<td class="px-6 py-4 text-right font-medium text-slate-900 dark:text-white">$1.8B</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-[#202933]/50 transition-colors">
+<td class="px-6 py-4 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-bold">D</div>
+<span class="font-medium text-slate-900 dark:text-white">Deribit</span>
+</td>
+<td class="px-6 py-4 text-text-secondary">BTC-PERPETUAL</td>
+<td class="px-6 py-4 font-medium text-slate-900 dark:text-white">$64,250.00</td>
+<td class="px-6 py-4 text-text-secondary">$1.2B</td>
+<td class="px-6 py-4 text-success">0.0102%</td>
+<td class="px-6 py-4 text-right font-medium text-slate-900 dark:text-white">$890M</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-[#202933]/50 transition-colors">
+<td class="px-6 py-4 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 text-xs font-bold">B</div>
+<span class="font-medium text-slate-900 dark:text-white">Bybit</span>
+</td>
+<td class="px-6 py-4 text-text-secondary">BTCUSDT</td>
+<td class="px-6 py-4 font-medium text-slate-900 dark:text-white">$64,238.10</td>
+<td class="px-6 py-4 text-text-secondary">$3.8B</td>
+<td class="px-6 py-4 text-success">0.0089%</td>
+<td class="px-6 py-4 text-right font-medium text-slate-900 dark:text-white">$2.1B</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="xl:col-span-4 flex flex-col gap-6">
+<div class="flex flex-col rounded-xl bg-surface-light dark:bg-surface-dark p-6 shadow-sm border border-slate-200 dark:border-transparent relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-danger via-yellow-400 to-success"></div>
+<div class="flex justify-between items-end mb-4 relative z-10">
+<div>
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Composite Health</h3>
+<p class="text-sm text-text-secondary">Aggregated market sentiment</p>
+</div>
+<div class="text-right">
+<span class="text-3xl font-bold text-success">78</span>
+<span class="text-sm text-text-secondary font-medium">/100</span>
+</div>
+</div>
+<div class="relative h-4 w-full rounded-full bg-slate-200 dark:bg-[#3b4754] mb-2">
+<div class="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-success/80 to-success" style="width: 78%;"></div>
+</div>
+<div class="flex justify-between items-center mt-2">
+<span class="text-sm font-medium text-slate-900 dark:text-white flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-success"></span>
+                                Bullish
+                            </span>
+<span class="text-xs text-text-secondary">Updated 2m ago</span>
+</div>
+<div class="absolute -right-10 -bottom-10 w-40 h-40 bg-success/10 rounded-full blur-3xl pointer-events-none group-hover:bg-success/20 transition-all duration-500"></div>
+</div>
+<div class="rounded-xl bg-surface-light dark:bg-surface-dark p-6 shadow-sm border border-slate-200 dark:border-transparent flex flex-col gap-4">
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Alerts Configuration</h3>
+<p class="text-sm text-text-secondary">Set triggers for price movements, funding rates, or on-chain anomalies.</p>
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-[#202933] border border-slate-200 dark:border-[#3b4754]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-text-secondary">trending_up</span>
+<div class="flex flex-col">
+<span class="text-sm font-bold text-slate-900 dark:text-white">Price &gt; $65k</span>
+<span class="text-xs text-text-secondary">Active • Push</span>
+</div>
+</div>
+<div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+<input class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-primary border-slate-300 dark:border-gray-600" id="toggle" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-5 rounded-full bg-slate-300 dark:bg-gray-700 cursor-pointer" for="toggle"></label>
+</div>
+</div>
+</div>
+<button class="flex w-full cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary hover:bg-blue-600 text-white gap-2 text-sm font-bold transition-colors shadow-lg shadow-blue-500/20">
+<span class="material-symbols-outlined text-[20px]">add_alert</span>
+<span>Create New Alert</span>
+</button>
+</div>
+<div class="flex flex-col rounded-xl bg-surface-light dark:bg-surface-dark shadow-sm border border-slate-200 dark:border-transparent flex-1">
+<div class="p-4 lg:px-6 border-b border-slate-200 dark:border-[#3b4754] flex justify-between items-center">
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Market Pulse</h3>
+<button class="text-text-secondary hover:text-white"><span class="material-symbols-outlined">refresh</span></button>
+</div>
+<div class="flex flex-col divide-y divide-slate-200 dark:divide-[#3b4754]">
+<div class="p-4 flex gap-3 hover:bg-slate-50 dark:hover:bg-[#202933]/50 transition-colors cursor-pointer">
+<div class="h-10 w-10 shrink-0 rounded bg-blue-500/10 flex items-center justify-center text-blue-500">
+<span class="material-symbols-outlined text-lg">water</span>
+</div>
+<div class="flex flex-col gap-1">
+<p class="text-sm font-medium text-slate-900 dark:text-white line-clamp-2">Whale Alert: 5,000 BTC transferred from Coinbase to unknown wallet.</p>
+<p class="text-xs text-text-secondary">10 mins ago • On-Chain</p>
+</div>
+</div>
+<div class="p-4 flex gap-3 hover:bg-slate-50 dark:hover:bg-[#202933]/50 transition-colors cursor-pointer">
+<div class="h-10 w-10 shrink-0 rounded bg-purple-500/10 flex items-center justify-center text-purple-500">
+<span class="material-symbols-outlined text-lg">psychology</span>
+</div>
+<div class="flex flex-col gap-1">
+<p class="text-sm font-medium text-slate-900 dark:text-white line-clamp-2">Long Liquidations spike to $45M in last hour as price dips.</p>
+<p class="text-xs text-text-secondary">32 mins ago • Derivatives</p>
+</div>
+</div>
+<div class="p-4 flex gap-3 hover:bg-slate-50 dark:hover:bg-[#202933]/50 transition-colors cursor-pointer">
+<div class="h-10 w-10 shrink-0 rounded bg-green-500/10 flex items-center justify-center text-green-500">
+<span class="material-symbols-outlined text-lg">newspaper</span>
+</div>
+<div class="flex flex-col gap-1">
+<p class="text-sm font-medium text-slate-900 dark:text-white line-clamp-2">SEC delays decision on Bitcoin ETF options trading.</p>
+<p class="text-xs text-text-secondary">1 hour ago • News</p>
+</div>
+</div>
+</div>
+<div class="p-4 mt-auto">
+<button class="w-full text-center text-sm font-medium text-text-secondary hover:text-slate-900 dark:hover:text-white transition-colors">View All Updates</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>

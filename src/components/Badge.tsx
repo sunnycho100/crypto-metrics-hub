@@ -1,26 +1,39 @@
 import React from 'react';
 
 interface BadgeProps {
+  variant: 'success' | 'danger';
   children: React.ReactNode;
-  variant?: 'default' | 'success' | 'warning' | 'danger' | 'info';
-  className?: string;
+  icon?: string;
 }
 
-export const Badge: React.FC<BadgeProps> = ({ 
-  children, 
-  variant = 'default',
-  className = '' 
-}) => {
-  const variantStyles = {
-    default: 'bg-surface-2 text-muted border border-border',
-    success: 'bg-positive-light text-positive border border-positive/20',
-    warning: 'bg-orange-light text-orange border border-orange/20',
-    danger: 'bg-negative-light text-negative border border-negative/20',
-    info: 'bg-accent-light text-accent border border-accent/20',
+export const Badge: React.FC<BadgeProps> = ({ variant, children, icon }) => {
+  const variantClasses = {
+    success: 'text-success bg-success/10',
+    danger: 'text-danger bg-danger/10'
   };
 
   return (
-    <span className={`badge ${variantStyles[variant]} ${className}`}>
+    <div className={`flex items-center gap-1 text-sm font-bold w-fit px-2 py-0.5 rounded-full mt-1 ${variantClasses[variant]}`}>
+      {icon && <span className="material-symbols-outlined text-sm">{icon}</span>}
+      <span>{children}</span>
+    </div>
+  );
+};
+
+interface PillProps {
+  variant: 'neutral' | 'success' | 'danger';
+  children: React.ReactNode;
+}
+
+export const Pill: React.FC<PillProps> = ({ variant, children }) => {
+  const variantClasses = {
+    neutral: 'bg-orange-500/10 text-orange-400',
+    success: 'text-success',
+    danger: 'text-danger'
+  };
+
+  return (
+    <span className={`text-xs font-bold px-2 py-0.5 rounded mb-1 ${variantClasses[variant]}`}>
       {children}
     </span>
   );

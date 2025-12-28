@@ -7,7 +7,7 @@ interface CardProps {
 
 export const Card: React.FC<CardProps> = ({ children, className = '' }) => {
   return (
-    <div className={`card p-6 ${className}`}>
+    <div className={`flex flex-col rounded-xl bg-surface-light dark:bg-surface-dark shadow-sm border border-slate-200 dark:border-transparent overflow-hidden ${className}`}>
       {children}
     </div>
   );
@@ -15,15 +15,108 @@ export const Card: React.FC<CardProps> = ({ children, className = '' }) => {
 
 interface CardHeaderProps {
   title: string;
+  subtitle?: string;
   action?: React.ReactNode;
-  className?: string;
 }
 
-export const CardHeader: React.FC<CardHeaderProps> = ({ title, action, className = '' }) => {
+export const CardHeader: React.FC<CardHeaderProps> = ({ title, subtitle, action }) => {
   return (
-    <div className={`flex items-center justify-between mb-6 ${className}`}>
-      <h3 className="text-lg font-semibold text-text">{title}</h3>
-      {action && <div className="text-sm">{action}</div>}
+    <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 dark:border-[#3b4754] p-4 lg:px-6">
+      <div className="flex flex-col">
+        <h3 className="text-lg font-bold text-slate-900 dark:text-white">{title}</h3>
+        {subtitle && <p className="text-xs text-text-secondary">{subtitle}</p>}
+      </div>
+      {action && <div className="flex gap-2">{action}</div>}
+    </div>
+  );
+};
+
+interface MetricCardProps {
+  title: string;
+  value: string;
+  change: string;
+  changeType: 'positive' | 'negative';
+  icon: string;
+  iconBgColor: string;
+  iconColor: string;
+}
+
+export const MetricCard: React.FC<MetricCardProps> = ({
+  title,
+  value,
+  change,
+  changeType,
+  icon,
+  iconBgColor,
+  iconColor
+}) => {
+  return (
+    <div className="h-full flex flex-col gap-1 rounded-2xl bg-gradient-to-br from-white to-slate-50 dark:from-[#2e3742] dark:to-[#222931] p-5 shadow-[0_4px_0_0_rgba(203,213,225,1)] dark:shadow-[0_4px_0_0_rgba(17,20,24,0.5)] border-t border-l border-white/60 dark:border-white/10 active:translate-y-1 active:shadow-none transition-all duration-150 ease-out hover:brightness-105">
+      <div className="flex justify-between items-start">
+        <p className="text-text-secondary text-sm font-bold uppercase tracking-wider">{title}</p>
+        <div className={`h-8 w-8 rounded-full ${iconBgColor} flex items-center justify-center ${iconColor} shadow-inner`}>
+          <span className="material-symbols-outlined text-[20px]">{icon}</span>
+        </div>
+      </div>
+      <p className="text-slate-900 dark:text-white text-2xl font-black tracking-tight mt-2">{value}</p>
+      <div className={`flex items-center gap-1 text-sm font-bold w-fit px-2 py-0.5 rounded-full mt-1 ${
+        changeType === 'positive' 
+          ? 'text-success bg-success/10' 
+          : 'text-danger bg-danger/10'
+      }`}>
+        <span className="material-symbols-outlined text-sm">
+          {changeType === 'positive' ? 'trending_up' : 'trending_down'}
+        </span>
+        <span>{change}</span>
+      </div>
+    </div>
+  );
+};
+
+interface SmallMetricCardProps {
+  title: string;
+  value: string;
+  change?: string;
+  changeType?: 'positive' | 'neutral';
+  barData: number[];
+  barColor: string;
+}
+
+export const SmallMetricCard: React.FC<SmallMetricCardProps> = ({
+  title,
+  value,
+  change,
+  changeType = 'positive',
+  barData,
+  barColor
+}) => {
+  return (
+    <div className="h-full flex flex-col gap-3 rounded-2xl bg-gradient-to-br from-white to-slate-50 dark:from-[#2e3742] dark:to-[#222931] p-5 shadow-[0_4px_0_0_rgba(203,213,225,1)] dark:shadow-[0_4px_0_0_rgba(17,20,24,0.5)] border-t border-l border-white/60 dark:border-white/10 active:translate-y-1 active:shadow-none transition-all duration-150 ease-out hover:brightness-105">
+      <div className="flex justify-between items-center">
+        <p className="text-text-secondary text-sm font-bold uppercase tracking-wider">{title}</p>
+        <span className="material-symbols-outlined text-text-secondary text-lg">info</span>
+      </div>
+      <div className="flex items-end gap-2">
+        <p className="text-slate-900 dark:text-white text-2xl font-black">{value}</p>
+        {change && (
+          <span className={`text-xs font-bold mb-1 ${
+            changeType === 'neutral' 
+              ? 'bg-orange-500/10 text-orange-400 px-2 py-0.5 rounded' 
+              : 'text-success'
+          }`}>
+            {change}
+          </span>
+        )}
+      </div>
+      <div className="h-8 w-full flex items-end gap-0.5 mt-auto">
+        {barData.map((height, index) => (
+          <div 
+            key={index}
+            className={`${barColor} w-full rounded-sm`}
+            style={{ height: `${height}%`, opacity: 0.4 + (index * 0.15) }}
+          />
+        ))}
+      </div>
     </div>
   );
 };
