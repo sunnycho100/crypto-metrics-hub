@@ -4,7 +4,7 @@ export const CompositeHealthCard: React.FC = () => {
   const healthScore = 78;
 
   return (
-    <div className="flex flex-col rounded-xl bg-surface-light dark:bg-surface-dark p-6 shadow-sm border border-slate-200 dark:border-transparent relative overflow-hidden group">
+    <div className="flex flex-col rounded-xl bg-surface-light dark:bg-surface-dark p-6 shadow-sm border border-slate-200 dark:border-transparent relative overflow-hidden group z-0">
       {/* Gradient bar at top */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-danger via-yellow-400 to-success"></div>
       

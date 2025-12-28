@@ -5,7 +5,7 @@ export const AlertsCard: React.FC = () => {
   const [isAlertActive, setIsAlertActive] = useState(true);
 
   return (
-    <div className="rounded-xl bg-surface-light dark:bg-surface-dark p-6 shadow-sm border border-slate-200 dark:border-transparent flex flex-col gap-4">
+    <div className="rounded-xl bg-surface-light dark:bg-surface-dark p-6 shadow-sm border border-slate-200 dark:border-transparent flex flex-col gap-4 relative z-0">
       <h3 className="text-lg font-bold text-slate-900 dark:text-white">Alerts Configuration</h3>
       <p className="text-sm text-text-secondary">
         Set triggers for price movements, funding rates, or on-chain anomalies.
