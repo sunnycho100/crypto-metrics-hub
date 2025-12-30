@@ -1,31 +1,229 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardHeader } from './Card';
 import { TimeButton } from './Button';
-import { PriceChart } from './Charts';
+import { fetchBTCCandles } from '../services/coinbase';
+import type { Candle, Granularity } from '../types/coinbase';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
+
+interface TimeOption {
+  label: string;
+  granularity: Granularity;
+  count: number; // Number of candles to display
+}
+
+const TIME_OPTIONS: TimeOption[] = [
+  { label: '1H', granularity: 60, count: 60 },      // 1-min candles for 1 hour
+  { label: '4H', granularity: 300, count: 48 },     // 5-min candles for 4 hours
+  { label: '1D', granularity: 900, count: 96 },     // 15-min candles for 1 day
+  { label: '1W', granularity: 3600, count: 168 },   // 1-hour candles for 1 week
+];
 
 export const PriceChartCard: React.FC = () => {
-  const [activeTime, setActiveTime] = useState('1D');
-  const timeOptions = ['1H', '4H', '1D', '1W'];
+  const [activeTimeIndex, setActiveTimeIndex] = useState(2); // Default to '1D'
+  const [candles, setCandles] = useState<Candle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const activeTimeOption = TIME_OPTIONS[activeTimeIndex];
+
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const data = await fetchBTCCandles(activeTimeOption.granularity);
+        
+        if (mounted) {
+          // Coinbase returns newest first, so reverse for chronological order
+          const sortedData = data.reverse().slice(-activeTimeOption.count);
+          setCandles(sortedData);
+        }
+      } catch (err) {
+        if (mounted) {
+          setError(err instanceof Error ? err.message : 'Failed to fetch data');
+          console.error('Error fetching BTC candles:', err);
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+
+    // Auto-refresh every 60 seconds
+    const interval = setInterval(fetchData, 60000);
+
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, [activeTimeOption.granularity, activeTimeOption.count]);
+
+  // Prepare chart data
+  const chartData = {
+    labels: candles.map((candle) => {
+      const date = new Date(candle.timestamp * 1000);
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      
+      if (activeTimeOption.label === '1W') {
+        return `${date.getMonth() + 1}/${date.getDate()} ${hours}:${minutes}`;
+      }
+      return `${hours}:${minutes}`;
+    }),
+    datasets: [
+      {
+        label: 'BTC Price',
+        data: candles.map((candle) => candle.close),
+        borderColor: '#3b82f6',
+        backgroundColor: (context: any) => {
+          const ctx = context.chart.ctx;
+          const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+          gradient.addColorStop(0, 'rgba(59, 130, 246, 0.2)');
+          gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+          return gradient;
+        },
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        pointHoverBackgroundColor: '#3b82f6',
+        pointHoverBorderColor: '#fff',
+        pointHoverBorderWidth: 2,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+      mode: 'index' as const,
+      intersect: false,
+    },
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        backgroundColor: 'rgba(17, 24, 39, 0.95)',
+        titleColor: '#9ca3af',
+        bodyColor: '#fff',
+        borderColor: '#374151',
+        borderWidth: 1,
+        padding: 12,
+        displayColors: false,
+        callbacks: {
+          title: (context: any) => {
+            const candle = candles[context[0].dataIndex];
+            const date = new Date(candle.timestamp * 1000);
+            return date.toLocaleString();
+          },
+          label: (context: any) => {
+            const candle = candles[context.dataIndex];
+            return [
+              `Price: $${candle.close.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+              `High: $${candle.high.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+              `Low: $${candle.low.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+              `Volume: ${candle.volume.toFixed(2)} BTC`,
+            ];
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          color: 'rgba(107, 114, 128, 0.1)',
+          drawBorder: false,
+        },
+        ticks: {
+          color: '#6b7280',
+          maxRotation: 0,
+          autoSkipPadding: 20,
+        },
+      },
+      y: {
+        position: 'right' as const,
+        grid: {
+          color: 'rgba(107, 114, 128, 0.1)',
+          drawBorder: false,
+        },
+        ticks: {
+          color: '#6b7280',
+          callback: (value: any) => `$${value.toLocaleString()}`,
+        },
+      },
+    },
+  };
 
   return (
     <Card className="relative z-0">
       <CardHeader
         title="Price Action & Volume"
-        subtitle="BTC/USD - Aggregated Spot"
+        subtitle={
+          loading
+            ? 'Loading data...'
+            : error
+            ? 'Failed to load data'
+            : `BTC/USD - Live Coinbase Data (${candles.length} candles)`
+        }
         action={
           <>
-            {timeOptions.map((time) => (
+            {TIME_OPTIONS.map((option, index) => (
               <TimeButton
-                key={time}
-                label={time}
-                isActive={activeTime === time}
-                onClick={() => setActiveTime(time)}
+                key={option.label}
+                label={option.label}
+                isActive={activeTimeIndex === index}
+                onClick={() => setActiveTimeIndex(index)}
               />
             ))}
           </>
         }
       />
-      <PriceChart />
+      <div className="relative h-[400px] w-full p-6">
+        {loading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-gray-400">Loading chart data...</div>
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-red-400">{error}</div>
+          </div>
+        ) : (
+          <Line data={chartData} options={chartOptions} />
+        )}
+      </div>
     </Card>
   );
 };
