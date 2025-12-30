@@ -1,43 +1,146 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ModalCard, ModalRow } from './ModalCard';
 import { MetricCard } from './Card';
+import { fetchBTCStats } from '../services/coinbase';
+import type { ProductStats } from '../types/coinbase';
 
 export const KPICards: React.FC = () => {
+  const [stats, setStats] = useState<ProductStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchData = async () => {
+      try {
+        const data = await fetchBTCStats();
+        if (mounted) {
+          setStats(data);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error fetching BTC stats:', error);
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchData, 30000);
+
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, []);
+
+  // Calculate 24h change
+  const calculate24hChange = () => {
+    if (!stats) return { change: '0.00%', changeType: 'positive' as const };
+    
+    const current = parseFloat(stats.last);
+    const open = parseFloat(stats.open);
+    const changePercent = ((current - open) / open) * 100;
+    
+    return {
+      change: `${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%`,
+      changeType: (changePercent >= 0 ? 'positive' : 'negative') as const,
+    };
+  };
+
+  // Calculate volume change (using 30day as reference)
+  const calculateVolumeChange = () => {
+    if (!stats) return { change: '0.00%', changeType: 'positive' as const };
+    
+    const volume24h = parseFloat(stats.volume);
+    const volume30day = parseFloat(stats.volume_30day);
+    const avgDailyVolume = volume30day / 30;
+    const changePercent = ((volume24h - avgDailyVolume) / avgDailyVolume) * 100;
+    
+    return {
+      change: `${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%`,
+      changeType: (changePercent >= 0 ? 'positive' : 'negative') as const,
+    };
+  };
+
+  // Format currency
+  const formatPrice = (price: string) => {
+    return `$${parseFloat(price).toLocaleString(undefined, { 
+      minimumFractionDigits: 2, 
+      maximumFractionDigits: 2 
+    })}`;
+  };
+
+  // Format volume
+  const formatVolume = (volume: string) => {
+    const vol = parseFloat(volume);
+    if (vol >= 1000000) {
+      return `${(vol / 1000000).toFixed(2)}M BTC`;
+    } else if (vol >= 1000) {
+      return `${(vol / 1000).toFixed(2)}K BTC`;
+    }
+    return `${vol.toFixed(2)} BTC`;
+  };
+
+  const priceChange = calculate24hChange();
+  const volumeChange = calculateVolumeChange();
+
   const kpiData = [
     {
       id: 'price',
       title: 'Bitcoin Price',
-      value: '$64,231.50',
-      change: '+2.45%',
-      changeType: 'positive' as const,
+      value: loading || !stats ? 'Loading...' : formatPrice(stats.last),
+      change: priceChange.change,
+      changeType: priceChange.changeType,
       icon: 'attach_money',
       iconBgColor: 'bg-primary/10',
       iconColor: 'text-primary',
       modalTitle: 'Price Details',
-      modalContent: (
+      modalContent: stats ? (
         <>
-          <ModalRow label="24h High" value="$65,102.40" />
-          <ModalRow label="24h Low" value="$63,200.15" />
-          <ModalRow label="All Time High" value="$73,750.07" subValue="-12.8%" />
+          <ModalRow label="Current Price" value={formatPrice(stats.last)} />
+          <ModalRow label="24h High" value={formatPrice(stats.high)} />
+          <ModalRow label="24h Low" value={formatPrice(stats.low)} />
+          <ModalRow label="24h Open" value={formatPrice(stats.open)} />
+          <ModalRow 
+            label="24h Change" 
+            value={priceChange.change}
+            valueColor={priceChange.changeType === 'positive' ? 'success' : 'danger'} 
+          />
         </>
+      ) : (
+        <ModalRow label="Status" value="Loading..." />
       )
     },
     {
       id: 'volume',
       title: '24h Volume',
-      value: '$34.1B',
-      change: '-5.2%',
-      changeType: 'negative' as const,
+      value: loading || !stats ? 'Loading...' : formatVolume(stats.volume),
+      change: volumeChange.change,
+      changeType: volumeChange.changeType,
       icon: 'bar_chart',
       iconBgColor: 'bg-purple-500/10',
       iconColor: 'text-purple-500',
       modalTitle: 'Volume Analytics',
-      modalContent: (
+      modalContent: stats ? (
         <>
-          <ModalRow label="Spot Volume" value="$12.1B" />
-          <ModalRow label="Derivatives Vol" value="$22.0B" />
-          <ModalRow label="Binance Share" value="45.2%" valueColor="success" />
+          <ModalRow label="24h Volume" value={formatVolume(stats.volume)} />
+          <ModalRow label="30d Volume" value={formatVolume(stats.volume_30day)} />
+          <ModalRow 
+            label="Avg Daily Volume" 
+            value={formatVolume((parseFloat(stats.volume_30day) / 30).toString())} 
+          />
+          <ModalRow 
+            label="vs Avg" 
+            value={volumeChange.change}
+            valueColor={volumeChange.changeType === 'positive' ? 'success' : 'danger'} 
+          />
         </>
+      ) : (
+        <ModalRow label="Status" value="Loading..." />
       )
     },
     {
@@ -55,6 +158,7 @@ export const KPICards: React.FC = () => {
           <ModalRow label="BTC Dominance" value="54.2%" />
           <ModalRow label="FDV" value="$1.35T" />
           <ModalRow label="Circulating Supply" value="19.7M BTC" />
+          <ModalRow label="Data Source" value="Mock Data" valueColor="warning" />
         </>
       )
     },
@@ -73,6 +177,7 @@ export const KPICards: React.FC = () => {
           <ModalRow label="Long/Short Ratio" value="1.04" valueColor="success" />
           <ModalRow label="Top Exchange" value="Binance ($4.2B)" />
           <ModalRow label="1h Change" value="+0.5%" valueColor="success" />
+          <ModalRow label="Data Source" value="Mock Data" valueColor="warning" />
         </>
       )
     }

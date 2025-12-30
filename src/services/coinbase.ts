@@ -1,4 +1,4 @@
-import type { CandleRaw, Candle, Granularity } from '../types/coinbase';
+import type { CandleRaw, Candle, Granularity, ProductStats, ProductTicker } from '../types/coinbase';
 
 const BASE_URL = 'https://api.exchange.coinbase.com';
 
@@ -59,17 +59,51 @@ export async function fetchBTCCandles(
 }
 
 /**
+ * Fetches 24-hour product statistics from Coinbase
+ * 
+ * @returns 24-hour stats including price, volume, high, low
+ */
+export async function fetchBTCStats(): Promise<ProductStats> {
+  const url = `${BASE_URL}/products/btc-usd/stats`;
+  
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => 'Unknown error');
+    throw new Error(
+      `Failed to fetch BTC stats from Coinbase API (${response.status}): ${errorText}`
+    );
+  }
+
+  return await response.json();
+}
+
+/**
+ * Fetches current ticker information including price and volume
+ * 
+ * @returns Current ticker data
+ */
+export async function fetchBTCTicker(): Promise<ProductTicker> {
+  const url = `${BASE_URL}/products/btc-usd/ticker`;
+  
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => 'Unknown error');
+    throw new Error(
+      `Failed to fetch BTC ticker from Coinbase API (${response.status}): ${errorText}`
+    );
+  }
+
+  return await response.json();
+}
+
+/**
  * Fetches the latest Bitcoin price from Coinbase
  * 
  * @returns Current BTC price in USD
  */
 export async function fetchCurrentBTCPrice(): Promise<number> {
-  const candles = await fetchBTCCandles(60); // 1-minute candles
-  
-  if (candles.length === 0) {
-    throw new Error('No candle data available');
-  }
-
-  // Return the most recent close price
-  return candles[0].close;
+  const ticker = await fetchBTCTicker();
+  return parseFloat(ticker.price);
 }

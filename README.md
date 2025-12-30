@@ -1,6 +1,6 @@
-# BTC Investment Performance Indicator Dashboard
+# BTC Metrics Hub
 
-A modern, clean-themed React + TypeScript dashboard for Bitcoin investment performance monitoring. Features a professional light design with smooth rounded shapes and interactive Chart.js visualizations.
+A modern React + TypeScript dashboard for Bitcoin metrics monitoring with live data integration from Coinbase Exchange API. Features real-time price tracking, interactive Chart.js visualizations, and a clean, responsive design.
 
 ## 🌐 Live Demo
 
@@ -9,33 +9,47 @@ A modern, clean-themed React + TypeScript dashboard for Bitcoin investment perfo
 ## ✨ Features Implemented
 
 ### Current Features
-- ✅ **Full responsive layout** with fixed sidebar (280px) and main content area
-- ✅ **Clean light theme** with smooth gradients and modern design
-- ✅ **Sidebar navigation** with 8 emoji-based nav items and 3 color-coded saved views
-- ✅ **Enhanced top bar** with advanced search, live BTC price, and notifications
-- ✅ **Four interactive dashboard cards with real Chart.js graphs**:
-  - **Market Snapshot**: 4 animated KPI tiles + gradient area chart with 7-day trend
-  - **Composite Rating**: Doughnut chart + progress bars showing component scores
-  - **Indicator Watch**: 5 indicators with mini sparklines and status badges
-  - **Alerts & Triggers**: Icon-based alert cards with color coding
-- ✅ **Reusable components**: Card, Badge, Pill, Charts (Line, Doughnut, Sparkline)
-- ✅ **Chart.js integration** with example data and smooth animations
-- ✅ **Large rounded corners** (14-24px), smooth shadows, and hover effects
-- ✅ **Gradient buttons** and interactive elements
+- ✅ **Live Coinbase API Integration**
+  - Real-time Bitcoin price data
+  - 24-hour trading statistics (high, low, open, close)
+  - 24-hour and 30-day volume metrics
+  - Auto-refresh every 30-60 seconds
+- ✅ **Interactive Price Chart**
+  - Live OHLCV candlestick data from Coinbase
+  - Multiple timeframes: 1H, 4H, 1D, 1W
+  - Chart.js with smooth animations and gradients
+  - Responsive tooltips with detailed price info
+- ✅ **KPI Cards with Live Data**
+  - Bitcoin Price (live from Coinbase)
+  - 24H Volume (live from Coinbase)
+  - Market Cap (mock data - requires external API)
+  - Open Interest (mock data - requires derivatives API)
+- ✅ **Dashboard Components**
+  - Composite Health Card
+  - Alerts & Triggers Card
+  - Market Pulse Card
+  - On-Chain Metrics (mock data)
+  - Derivatives Table (mock data)
+- ✅ **Modern UI/UX**
+  - Responsive layout with grid system
+  - Clean light/dark theme support
+  - Reusable component library
+  - Smooth hover effects and transitions
+  - Modal cards with detailed metrics
 
 ### Features Not Yet Implemented
-- ⏳ Live data integration / API calls
-- ⏳ Interactive filters and search functionality
-- ⏳ Alert creation modal/form
-- ⏳ Responsive mobile sidebar (hamburger menu)
+- ⏳ Market Cap live data (needs CoinGecko/CoinMarketCap API)
+- ⏳ Open Interest live data (needs derivatives exchange APIs)
+- ⏳ On-chain metrics integration (needs Glassnode/CryptoQuant)
 - ⏳ User authentication
 - ⏳ Real-time WebSocket updates
-- ⏳ Data export functionality
+- ⏳ Data export functionality (CSV, PDF)
 - ⏳ Customizable dashboard widgets
+- ⏳ Alert creation and notifications
 
 ## 🎨 Theme
 
-The dashboard uses a **clean light** color scheme with smooth gradients:
+The dashboard uses a **clean modern** color scheme with smooth gradients:
 
 ```css
 --bg: #f8f9fb              /* Light gray background */
@@ -57,26 +71,33 @@ The dashboard uses a **clean light** color scheme with smooth gradients:
 ## 📁 Project Structure
 
 ```
-webapp/
+btc_metrics_hub/
 ├── src/
 │   ├── components/
-│   │   ├── AlertsCard.tsx           # Alerts & Triggers card with icons
-│   │   ├── AppShell.tsx             # Main layout wrapper
+│   │   ├── AlertsCard.tsx           # Alerts & Triggers card
 │   │   ├── Badge.tsx                # Status badge component
-│   │   ├── Card.tsx                 # Reusable card container
-│   │   ├── Charts.tsx               # Chart.js components (Line, Doughnut, Sparkline)
-│   │   ├── CompositeRatingCard.tsx  # Rating with doughnut chart
-│   │   ├── DashboardGrid.tsx        # 2-column grid layout
-│   │   ├── IndicatorWatchCard.tsx   # Indicators with sparklines
-│   │   ├── MarketSnapshotCard.tsx   # Market data with area chart
-│   │   ├── Pill.tsx                 # Pill-shaped tag
-│   │   ├── Sidebar.tsx              # Left navigation sidebar
-│   │   └── TopBar.tsx               # Top header bar
+│   │   ├── Button.tsx               # Button components
+│   │   ├── Card.tsx                 # Reusable card containers
+│   │   ├── Charts.tsx               # Chart.js components
+│   │   ├── CompositeHealthCard.tsx  # Health rating card
+│   │   ├── DerivativesTable.tsx     # Derivatives data table
+│   │   ├── Header.tsx               # Top header bar
+│   │   ├── KPICards.tsx             # Live KPI metrics (Price, Volume)
+│   │   ├── MarketPulseCard.tsx      # Market pulse indicators
+│   │   ├── ModalCard.tsx            # Modal overlay component
+│   │   ├── OnChainMetrics.tsx       # On-chain data cards
+│   │   ├── PriceChartCard.tsx       # Live price chart with Coinbase data
+│   │   └── index.ts                 # Component exports
+│   ├── services/
+│   │   └── coinbase.ts              # Coinbase API service
+│   ├── types/
+│   │   └── coinbase.ts              # TypeScript type definitions
 │   ├── App.tsx                      # Main app component
 │   ├── index.css                    # Global styles + Tailwind
 │   └── main.tsx                     # React entry point
-├── ecosystem.config.cjs             # PM2 configuration
 ├── tailwind.config.js               # Tailwind configuration
+├── vite.config.ts                   # Vite configuration
+├── tsconfig.json                    # TypeScript configuration
 └── package.json
 ```
 
@@ -90,7 +111,7 @@ webapp/
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd webapp
+cd btc_metrics_hub
 
 # Install dependencies
 npm install
@@ -105,19 +126,10 @@ npm run build
 ### Development Commands
 
 ```bash
-npm run dev          # Start Vite dev server
+npm run dev          # Start Vite dev server (usually on localhost:5173)
 npm run build        # Build for production
 npm run preview      # Preview production build
-```
-
-### PM2 Commands (Sandbox Environment)
-
-```bash
-pm2 start ecosystem.config.cjs    # Start server
-pm2 logs webapp --nostream        # View logs
-pm2 restart webapp                # Restart server
-pm2 delete webapp                 # Stop and remove
-pm2 list                          # List all processes
+npm run lint         # Run ESLint
 ```
 
 ## 🛠️ Tech Stack
@@ -128,96 +140,118 @@ pm2 list                          # List all processes
 - **Tailwind CSS** - Utility-first styling
 - **Chart.js** - Interactive charts and graphs
 - **react-chartjs-2** - React wrapper for Chart.js
-- **PM2** - Process manager (sandbox only)
+- **Coinbase Exchange API** - Live Bitcoin market data (public API, no key required)
+
+## 📊 API Integration
+
+### Coinbase Exchange API
+
+The app uses the public Coinbase Exchange API endpoints:
+
+- `/products/btc-usd/candles` - OHLCV candlestick data
+- `/products/btc-usd/stats` - 24-hour statistics
+- `/products/btc-usd/ticker` - Current ticker data
+
+**No API key required** - these are public endpoints with rate limiting.
+
+### Available Functions
+
+```typescript
+import { fetchBTCCandles, fetchBTCStats, fetchBTCTicker } from './services/coinbase';
+
+// Fetch candle data with different granularities
+const hourlyData = await fetchBTCCandles(3600); // 1-hour candles
+const dailyData = await fetchBTCCandles(86400); // 1-day candles
+
+// Get 24-hour stats
+const stats = await fetchBTCStats();
+console.log(stats.last, stats.volume, stats.high, stats.low);
+
+// Get current ticker
+const ticker = await fetchBTCTicker();
+console.log(ticker.price, ticker.bid, ticker.ask);
+```
 
 ## 📋 Recommended Next Steps
 
-1. **Connect Real Data APIs**
-   - Integrate CoinGecko or CoinMarketCap API for live BTC prices
-   - Add Glassnode or CryptoQuant for on-chain metrics
-   - Connect exchange APIs for derivatives data
+1. **Additional Data Sources**
+   - Integrate CoinGecko API for Market Cap and dominance
+   - Add Binance/Deribit API for Open Interest data
+   - Connect Glassnode or CryptoQuant for on-chain metrics
+   - Add multiple exchange aggregation
 
-2. **Enhance Interactivity**
-   - Make search bars functional with fuzzy search
-   - Add time range selectors for charts (1D, 7D, 1M, etc.)
-   - Implement alert creation modal with form validation
+2. **Enhanced Charting**
+   - Add candlestick chart view (not just line charts)
+   - Implement technical indicators (RSI, MACD, Bollinger Bands)
    - Add chart zoom and pan capabilities
+   - Volume bars overlay on price chart
 
-3. **Mobile Optimization**
-   - Convert sidebar to collapsible hamburger menu
-   - Stack cards vertically on mobile
-   - Optimize touch interactions and gestures
-   - Reduce chart complexity on small screens
+3. **User Features**
+   - Price alerts and notifications
+   - Watchlist functionality
+   - Portfolio tracking
+   - Historical data comparison
 
-4. **Advanced Features**
-   - Add data export (CSV, JSON, PDF)
-   - Implement dashboard customization (drag & drop widgets)
-   - Create multi-timeframe analysis views
-   - Add portfolio tracking integration
+4. **Performance Optimization**
+   - Implement data caching with React Query
+   - Add WebSocket for real-time updates
+   - Optimize chart rendering
+   - Add loading skeletons
 
-5. **Performance & State**
-   - Implement Zustand or Redux for state management
-   - Add React Query for data caching
-   - Optimize chart rendering with virtualization
-   - Add loading skeletons and error boundaries
+5. **Mobile Optimization**
+   - Responsive mobile layout improvements
+   - Touch-optimized chart interactions
+   - Mobile-friendly modals and tooltips
 
 ## 📝 Component Usage
 
-### Creating a New Card with Chart
+### Using the Price Chart
+
+```tsx
+import { PriceChartCard } from './components/PriceChartCard';
+
+// The component automatically fetches and displays live data
+<PriceChartCard />
+```
+
+### Using KPI Cards
+
+```tsx
+import { KPICards } from './components/KPICards';
+
+// Displays live price and volume, mock data for others
+<KPICards />
+```
+
+### Creating Custom Cards
 
 ```tsx
 import { Card, CardHeader } from './components/Card';
-import { LineChart } from './components/Charts';
 import { Badge } from './components/Badge';
 
 const MyCard = () => (
   <Card>
     <CardHeader
       title="My Card Title"
-      action={<Badge variant="info">Live</Badge>}
+      subtitle="Card description"
+      action={<Badge variant="success">Live</Badge>}
     />
-    <div className="h-64">
-      <LineChart type="gradient" />
+    <div className="p-6">
+      {/* Your content */}
     </div>
   </Card>
 );
 ```
 
-### Using Charts
-
-```tsx
-// Gradient area chart
-<LineChart type="gradient" />
-
-// Multi-line chart
-<LineChart type="multi" />
-
-// Simple sparkline
-<MiniSparkline data={[1, 2, 3, 4, 5]} color="#10b981" />
-
-// Doughnut chart
-<DoughnutChart />
-```
-
-### Using Status Badges
-
-```tsx
-<Badge variant="default">Normal</Badge>
-<Badge variant="success">Success</Badge>
-<Badge variant="warning">Warning</Badge>
-<Badge variant="danger">Danger</Badge>
-<Badge variant="info">Info</Badge>
-```
-
 ## 🎯 Design Principles
 
+- **Data-First**: Real-time data integration with graceful fallbacks
 - **Clean & Modern**: Light theme with smooth gradients and rounded shapes
-- **Visual Hierarchy**: Clear information structure with proper spacing
-- **Consistent Spacing**: 24-32px padding, 8px gap rhythm
-- **Smooth Interactions**: Hover effects, transitions, and animations
-- **Data-First**: Charts and visualizations take center stage
-- **Professional Polish**: Attention to details like shadows, borders, and colors
-- **Accessible**: High contrast text and clear visual indicators
+- **Responsive**: Mobile-first design with grid layouts
+- **Type-Safe**: Full TypeScript coverage for reliability
+- **Component-Based**: Reusable, composable UI components
+- **Performance**: Efficient data fetching with auto-refresh
+- **User Experience**: Loading states, error handling, and smooth interactions
 
 ## 📄 License
 
@@ -225,10 +259,10 @@ MIT
 
 ## 🤝 Contributing
 
-This is a UI skeleton project. Feel free to fork and customize for your needs!
+Contributions are welcome! Feel free to fork and customize for your needs.
 
 ---
 
-**Last Updated**: 2025-12-28  
-**Status**: ✅ Active (UI complete with Chart.js integration and example visualizations)  
-**Version**: 2.0 (Light Theme Redesign)
+**Last Updated**: 2025-12-31  
+**Status**: ✅ Active (Live Coinbase API integration)  
+**Version**: 1.0
