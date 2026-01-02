@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.2.1] - 2026-01-02
+
+### Added - Security & Documentation
+- **Security Checklist** (`SECURITY.md`)
+  - Comprehensive security review and checklist
+  - Production deployment security requirements
+  - Safe GitHub push verification steps
+  
+- **Root .gitignore** file
+  - Protection for all `.env` files
+  - Server directory security
+  - User data protection (`server/data/users.json`)
+  - System files and build artifacts
+
+### Changed - Security Hardening
+- **Server .env** - Replaced actual secret with clearly marked dev-only placeholder
+- **README.md** - Added security section with link to SECURITY.md
+- **Server .gitignore** - Enhanced to protect user data and environment files
+
+### Security
+- ✅ **Verified safe for GitHub** - No sensitive data will be committed
+- ✅ **Environment variables protected** - All `.env` files ignored
+- ✅ **User data secured** - Temporary JSON storage ignored
+- ✅ **No hardcoded secrets** - All secrets use environment variables
+
+---
+
 ## [1.2.0] - 2026-01-02
 
 ### Added - Authentication System

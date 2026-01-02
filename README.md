@@ -59,6 +59,15 @@ A basic authentication system is implemented with login/register functionality.
 - ✅ React context for auth state management
 - ✅ Login/Register modal UI
 
+### 🛡️ Security Features
+- ✅ **Environment Variables** - All secrets stored in `.env` files (not committed)
+- ✅ **Password Hashing** - bcrypt with 12 rounds
+- ✅ **JWT Tokens** - Secure token-based authentication
+- ✅ **Input Validation** - Email format and password length validation
+- ✅ **Safe for GitHub** - No hardcoded secrets, proper `.gitignore` setup
+
+> **Security**: See [SECURITY.md](SECURITY.md) for complete security checklist and production deployment requirements.
+
 ### 📋 TODO - Production Deployment
 When deploying to production, the following changes are required:
 
@@ -342,6 +351,7 @@ const MyCard = () => (
 For a detailed list of all changes, updates, and version history, see [CHANGELOG.md](CHANGELOG.md).
 
 ### Recent Updates
+- **v1.2.1** (2026-01-02): Security hardening, comprehensive .gitignore, and security documentation
 - **v1.2.0** (2026-01-02): Added authentication system with Express.js backend, JWT, and login UI
 - **v1.1.0** (2026-01-02): Added "(IN PROGRESS)" labels to cards pending API integration
 - **v1.0.0** (2025-12-31): Initial release with Coinbase API integration
@@ -358,4 +368,4 @@ Contributions are welcome! Feel free to fork and customize for your needs.
 
 **Last Updated**: 2026-01-02  
 **Status**: ✅ Active (Live Coinbase API + Auth Server)  
-**Version**: 1.2.0
+**Version**: 1.2.1
