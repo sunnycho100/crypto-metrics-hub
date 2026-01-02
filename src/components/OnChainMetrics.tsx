@@ -6,7 +6,7 @@ export const OnChainMetrics: React.FC = () => {
   const metricsData = [
     {
       id: 'mvrv',
-      title: 'MVRV Ratio',
+      title: 'MVRV Ratio (IN PROGRESS)',
       value: '1.84',
       change: 'Neutral',
       changeType: 'neutral' as const,
@@ -23,7 +23,7 @@ export const OnChainMetrics: React.FC = () => {
     },
     {
       id: 'active',
-      title: 'Active Addresses',
+      title: 'Active Addresses (IN PROGRESS)',
       value: '892K',
       change: '↑ 5%',
       changeType: 'positive' as const,
@@ -40,7 +40,7 @@ export const OnChainMetrics: React.FC = () => {
     },
     {
       id: 'hash',
-      title: 'Hash Rate',
+      title: 'Hash Rate (IN PROGRESS)',
       value: '580 EH/s',
       change: '↑ 1%',
       changeType: 'positive' as const,

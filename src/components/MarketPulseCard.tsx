@@ -42,7 +42,7 @@ export const MarketPulseCard: React.FC = () => {
   return (
     <Card className="flex-1 relative z-0">
       <div className="p-4 lg:px-6 border-b border-slate-200 dark:border-[#3b4754] flex justify-between items-center">
-        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Market Pulse</h3>
+        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Market Pulse (IN PROGRESS)</h3>
         <IconButton icon="refresh" />
       </div>
       

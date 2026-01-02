@@ -70,7 +70,7 @@ export const DerivativesTable: React.FC = () => {
   return (
     <Card className="relative z-0">
       <div className="flex items-center justify-between p-4 lg:px-6 border-b border-slate-200 dark:border-[#3b4754]">
-        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Top Derivatives Markets</h3>
+        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Top Derivatives Markets (IN PROGRESS)</h3>
         <TextButton>View All</TextButton>
       </div>
       <div className="overflow-x-auto">

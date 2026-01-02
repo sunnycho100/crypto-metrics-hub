@@ -10,7 +10,7 @@ export const CompositeHealthCard: React.FC = () => {
       
       <div className="flex justify-between items-end mb-4 relative z-10">
         <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white">Composite Health</h3>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white">Composite Health (IN PROGRESS)</h3>
           <p className="text-sm text-text-secondary">Aggregated market sentiment</p>
         </div>
         <div className="text-right">
