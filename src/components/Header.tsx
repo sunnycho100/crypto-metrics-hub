@@ -1,12 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { LoginModal } from './LoginModal';
 
 interface HeaderProps {
   className?: string;
 }
 
 export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
+  const { user, isAuthenticated, logout, isLoading } = useAuth();
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  const handleAccountClick = () => {
+    if (isAuthenticated) {
+      setIsUserMenuOpen(!isUserMenuOpen);
+    } else {
+      setIsLoginModalOpen(true);
+    }
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setIsUserMenuOpen(false);
+  };
+
   return (
-    <header className={`sticky top-0 z-50 flex items-center justify-between border-b border-solid border-slate-200 dark:border-[#283039] bg-surface-light dark:bg-background-dark px-6 py-3 ${className}`}>
+    <>
+      <header className={`sticky top-0 z-50 flex items-center justify-between border-b border-solid border-slate-200 dark:border-[#283039] bg-surface-light dark:bg-background-dark px-6 py-3 ${className}`}>
       <div className="flex items-center gap-8">
         {/* Logo */}
         <div className="flex items-center gap-3 text-slate-900 dark:text-white">
@@ -46,11 +66,74 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
             <span className="material-symbols-outlined text-text-secondary group-hover:text-white">notifications</span>
             <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-danger border-2 border-surface-light dark:border-surface-dark"></span>
           </button>
-          <button className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 dark:bg-surface-dark hover:bg-slate-200 dark:hover:bg-[#3b4754] transition-colors group">
-            <span className="material-symbols-outlined text-text-secondary group-hover:text-white">account_circle</span>
-          </button>
+          
+          {/* Account Button with User Menu */}
+          <div className="relative">
+            <button 
+              onClick={handleAccountClick}
+              className={`flex h-10 items-center justify-center rounded-lg transition-colors group ${
+                isAuthenticated 
+                  ? 'bg-primary/10 hover:bg-primary/20 px-3 gap-2' 
+                  : 'bg-slate-100 dark:bg-surface-dark hover:bg-slate-200 dark:hover:bg-[#3b4754] w-10'
+              }`}
+            >
+              {isLoading ? (
+                <span className="material-symbols-outlined text-text-secondary animate-spin">progress_activity</span>
+              ) : isAuthenticated ? (
+                <>
+                  <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white text-xs font-bold">
+                    {user?.name?.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                  <span className="text-sm font-medium text-slate-900 dark:text-white hidden sm:block max-w-[100px] truncate">
+                    {user?.name}
+                  </span>
+                  <span className="material-symbols-outlined text-text-secondary text-sm">expand_more</span>
+                </>
+              ) : (
+                <span className="material-symbols-outlined text-text-secondary group-hover:text-white">account_circle</span>
+              )}
+            </button>
+
+            {/* User Dropdown Menu */}
+            {isUserMenuOpen && isAuthenticated && (
+              <div className="absolute right-0 top-12 w-56 bg-surface-light dark:bg-surface-dark rounded-xl shadow-lg border border-slate-200 dark:border-[#3b4754] overflow-hidden z-50">
+                <div className="p-3 border-b border-slate-200 dark:border-[#3b4754]">
+                  <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{user?.name}</p>
+                  <p className="text-xs text-text-secondary truncate">{user?.email}</p>
+                </div>
+                <div className="p-1">
+                  <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-text-secondary hover:bg-slate-100 dark:hover:bg-[#3b4754] rounded-lg transition-colors">
+                    <span className="material-symbols-outlined text-lg">settings</span>
+                    Settings
+                  </button>
+                  <button 
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-danger hover:bg-danger/10 rounded-lg transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-lg">logout</span>
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>
+
+    {/* Click outside to close user menu */}
+    {isUserMenuOpen && (
+      <div 
+        className="fixed inset-0 z-40" 
+        onClick={() => setIsUserMenuOpen(false)}
+      />
+    )}
+
+    {/* Login Modal */}
+    <LoginModal 
+      isOpen={isLoginModalOpen} 
+      onClose={() => setIsLoginModalOpen(false)} 
+    />
+  </>
   );
 };

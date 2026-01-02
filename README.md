@@ -41,11 +41,57 @@ A modern React + TypeScript dashboard for Bitcoin metrics monitoring with live d
 - ⏳ Market Cap live data (needs CoinGecko/CoinMarketCap API)
 - ⏳ Open Interest live data (needs derivatives exchange APIs)
 - ⏳ On-chain metrics integration (needs Glassnode/CryptoQuant)
-- ⏳ User authentication
+- ✅ User authentication (basic implementation complete)
 - ⏳ Real-time WebSocket updates
 - ⏳ Data export functionality (CSV, PDF)
 - ⏳ Customizable dashboard widgets
 - ⏳ Alert creation and notifications
+
+## 🔐 Authentication System
+
+A basic authentication system is implemented with login/register functionality.
+
+### Current Implementation
+- ✅ Express.js backend server with JWT authentication
+- ✅ User registration and login
+- ✅ Password hashing with bcrypt
+- ✅ JWT token-based sessions
+- ✅ React context for auth state management
+- ✅ Login/Register modal UI
+
+### 📋 TODO - Production Deployment
+When deploying to production, the following changes are required:
+
+| Task | Status | Priority | Notes |
+|------|--------|----------|-------|
+| **Database Integration** | ⏳ TODO | 🔴 HIGH | Replace JSON file storage with PostgreSQL/MongoDB |
+| **Password Encryption at Rest** | ⏳ TODO | 🔴 HIGH | Use proper database encryption |
+| **JWT Secret Management** | ⏳ TODO | 🔴 HIGH | Use environment secrets manager (AWS Secrets Manager, HashiCorp Vault) |
+| **HTTPS/TLS** | ⏳ TODO | 🔴 HIGH | Enable SSL certificates for all API calls |
+| **Rate Limiting** | ⏳ TODO | 🟡 MEDIUM | Implement rate limiting on auth endpoints |
+| **Email Verification** | ⏳ TODO | 🟡 MEDIUM | Add email verification for registration |
+| **Password Reset** | ⏳ TODO | 🟡 MEDIUM | Implement forgot password flow |
+| **Session Blacklisting** | ⏳ TODO | 🟡 MEDIUM | Use Redis to track logged out tokens |
+| **OAuth Integration** | ⏳ TODO | 🟢 LOW | Add Google/GitHub OAuth login |
+| **2FA Support** | ⏳ TODO | 🟢 LOW | Add two-factor authentication |
+
+### Running the Auth Server
+
+```bash
+# Navigate to server directory
+cd server
+
+# Install dependencies
+npm install
+
+# Copy environment file and configure
+cp .env.example .env
+
+# Start development server
+npm run dev
+```
+
+The server runs on `http://localhost:3001` by default.
 
 ## 🎨 Theme
 
@@ -81,20 +127,36 @@ btc_metrics_hub/
 │   │   ├── Charts.tsx               # Chart.js components
 │   │   ├── CompositeHealthCard.tsx  # Health rating card
 │   │   ├── DerivativesTable.tsx     # Derivatives data table
-│   │   ├── Header.tsx               # Top header bar
+│   │   ├── Header.tsx               # Top header bar with auth
 │   │   ├── KPICards.tsx             # Live KPI metrics (Price, Volume)
+│   │   ├── LoginModal.tsx           # Login/Register modal
 │   │   ├── MarketPulseCard.tsx      # Market pulse indicators
 │   │   ├── ModalCard.tsx            # Modal overlay component
 │   │   ├── OnChainMetrics.tsx       # On-chain data cards
 │   │   ├── PriceChartCard.tsx       # Live price chart with Coinbase data
 │   │   └── index.ts                 # Component exports
+│   ├── contexts/
+│   │   └── AuthContext.tsx          # Authentication context provider
 │   ├── services/
+│   │   ├── auth.ts                  # Authentication API service
 │   │   └── coinbase.ts              # Coinbase API service
 │   ├── types/
 │   │   └── coinbase.ts              # TypeScript type definitions
 │   ├── App.tsx                      # Main app component
 │   ├── index.css                    # Global styles + Tailwind
 │   └── main.tsx                     # React entry point
+├── server/                          # Backend authentication server
+│   ├── src/
+│   │   ├── routes/
+│   │   │   └── auth.ts              # Authentication routes
+│   │   ├── services/
+│   │   │   └── userStore.ts         # User data storage (TODO: replace with DB)
+│   │   └── index.ts                 # Express server entry
+│   ├── data/
+│   │   └── users.json               # Temporary user storage (TODO: migrate to DB)
+│   ├── .env                         # Environment variables
+│   ├── .env.example                 # Example environment file
+│   └── package.json                 # Server dependencies
 ├── tailwind.config.js               # Tailwind configuration
 ├── vite.config.ts                   # Vite configuration
 ├── tsconfig.json                    # TypeScript configuration
@@ -113,27 +175,42 @@ btc_metrics_hub/
 git clone <repository-url>
 cd btc_metrics_hub
 
-# Install dependencies
+# Install frontend dependencies
 npm install
 
-# Start development server
+# Install backend dependencies
+cd server
+npm install
+cd ..
+
+# Start both servers (in separate terminals)
+
+# Terminal 1 - Backend server
+cd server
 npm run dev
 
-# Build for production
-npm run build
+# Terminal 2 - Frontend dev server
+npm run dev
 ```
 
 ### Development Commands
 
 ```bash
+# Frontend
 npm run dev          # Start Vite dev server (usually on localhost:5173)
 npm run build        # Build for production
 npm run preview      # Preview production build
 npm run lint         # Run ESLint
+
+# Backend (in /server directory)
+npm run dev          # Start Express dev server (localhost:3001)
+npm run build        # Build TypeScript
+npm run start        # Start production server
 ```
 
 ## 🛠️ Tech Stack
 
+### Frontend
 - **React 18** - UI library
 - **TypeScript** - Type safety
 - **Vite** - Build tool and dev server
@@ -141,6 +218,13 @@ npm run lint         # Run ESLint
 - **Chart.js** - Interactive charts and graphs
 - **react-chartjs-2** - React wrapper for Chart.js
 - **Coinbase Exchange API** - Live Bitcoin market data (public API, no key required)
+
+### Backend
+- **Express.js** - Node.js web framework
+- **TypeScript** - Type safety
+- **JWT** - Token-based authentication
+- **bcryptjs** - Password hashing
+- **JSON File Storage** - Temporary storage (TODO: migrate to database)
 
 ## 📊 API Integration
 
@@ -253,6 +337,15 @@ const MyCard = () => (
 - **Performance**: Efficient data fetching with auto-refresh
 - **User Experience**: Loading states, error handling, and smooth interactions
 
+## � Changelog
+
+For a detailed list of all changes, updates, and version history, see [CHANGELOG.md](CHANGELOG.md).
+
+### Recent Updates
+- **v1.2.0** (2026-01-02): Added authentication system with Express.js backend, JWT, and login UI
+- **v1.1.0** (2026-01-02): Added "(IN PROGRESS)" labels to cards pending API integration
+- **v1.0.0** (2025-12-31): Initial release with Coinbase API integration
+
 ## 📄 License
 
 MIT
@@ -263,6 +356,6 @@ Contributions are welcome! Feel free to fork and customize for your needs.
 
 ---
 
-**Last Updated**: 2025-12-31  
-**Status**: ✅ Active (Live Coinbase API integration)  
-**Version**: 1.0
+**Last Updated**: 2026-01-02  
+**Status**: ✅ Active (Live Coinbase API + Auth Server)  
+**Version**: 1.2.0

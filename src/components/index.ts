@@ -5,6 +5,7 @@ export { Card, CardHeader, MetricCard, SmallMetricCard } from './Card';
 export { Header } from './Header';
 export { TimeButton, IconButton, PrimaryButton, TextButton } from './Button';
 export { PriceChart, MiniBarChart } from './Charts';
+export { LoginModal } from './LoginModal';
 
 // Dashboard cards
 export { KPICards } from './KPICards';
