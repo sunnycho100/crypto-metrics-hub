@@ -38,8 +38,8 @@ export const KPICards: React.FC = () => {
   }, []);
 
   // Calculate 24h change
-  const calculate24hChange = () => {
-    if (!stats) return { change: '0.00%', changeType: 'positive' as const };
+  const calculatePriceChange = (): { change: string; changeType: 'positive' | 'negative' } => {
+    if (!stats) return { change: '+0.00%', changeType: 'positive' };
     
     const current = parseFloat(stats.last);
     const open = parseFloat(stats.open);
@@ -47,12 +47,12 @@ export const KPICards: React.FC = () => {
     
     return {
       change: `${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%`,
-      changeType: (changePercent >= 0 ? 'positive' : 'negative') as const,
+      changeType: changePercent >= 0 ? 'positive' : 'negative',
     };
   };
 
   // Calculate volume change (using 30day as reference)
-  const calculateVolumeChange = () => {
+  const calculateVolumeChange = (): { change: string; changeType: 'positive' | 'negative' } => {
     if (!stats) return { change: '0.00%', changeType: 'positive' as const };
     
     const volume24h = parseFloat(stats.volume);
@@ -62,7 +62,7 @@ export const KPICards: React.FC = () => {
     
     return {
       change: `${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%`,
-      changeType: (changePercent >= 0 ? 'positive' : 'negative') as const,
+      changeType: changePercent >= 0 ? 'positive' : 'negative',
     };
   };
 
@@ -85,7 +85,7 @@ export const KPICards: React.FC = () => {
     return `${vol.toFixed(2)} BTC`;
   };
 
-  const priceChange = calculate24hChange();
+  const priceChange = calculatePriceChange();
   const volumeChange = calculateVolumeChange();
 
   const kpiData = [

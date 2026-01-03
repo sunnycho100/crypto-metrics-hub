@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.3.1] - 2026-01-03
+
+### Added - Quick-Access Timeframe Controls
+- **Header Timeframe Buttons** - Added prominent quick-access buttons in the header for popular timeframes
+  - 1M, 1Y, and 5Y buttons for instant chart switching
+  - Integrated with chart state management via React Context
+  - Responsive design (hidden on mobile, visible on medium screens and up)
+  - Clean UI with active state highlighting
+
+- **1M Timeframe** - Added 1-month chart view using 6-hour candles
+  - 120 candles (6-hour intervals) covering approximately 1 month
+  - Optimized granularity for medium-term analysis
+  - Date format: MM/DD for readability
+
+### Enhanced
+- **Chart State Management** - Implemented React Context for global chart timeframe state
+  - Shared state between chart component and header controls
+  - Centralized timeframe management for better user experience
+
+### Fixed
+- **Dynamic Port Detection** - Enhanced start.sh script to automatically detect Vite's port
+  - Script now opens browser on the actual port Vite uses (e.g., 3001, 3002) instead of hardcoded 3000
+  - Automatic port detection when port 3000 is busy
+  - Real-time feedback and improved error handling
+  - Graceful cleanup on script termination
+
 ## [1.3.0] - 2026-01-03
 
 ### Added - Extended Chart Timeframes

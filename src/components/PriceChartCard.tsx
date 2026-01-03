@@ -3,6 +3,7 @@ import { Card, CardHeader } from './Card';
 import { TimeButton } from './Button';
 import { fetchBTCCandles } from '../services/coinbase';
 import { fetch5YearBTCData, CoinGeckoCandle } from '../services/coingecko';
+import { useChart } from '../contexts/ChartContext';
 import type { Candle, Granularity } from '../types/coinbase';
 import {
   Chart as ChartJS,
@@ -41,18 +42,25 @@ const TIME_OPTIONS: TimeOption[] = [
   { label: '4H', granularity: 300, count: 48 },     // 5-min candles for 4 hours
   { label: '1D', granularity: 900, count: 96 },     // 15-min candles for 1 day
   { label: '1W', granularity: 3600, count: 168 },   // 1-hour candles for 1 week
+  { label: '1M', granularity: 21600, count: 120 },  // 6-hour candles for 1 month
   { label: '1Y', granularity: 86400, count: 365 },  // Daily candles for 1 year
   { label: '5Y', granularity: 'coingecko', count: 1825 }, // 5-year data from CoinGecko
 ];
 
 export const PriceChartCard: React.FC = () => {
-  const [activeTimeIndex, setActiveTimeIndex] = useState(2); // Default to '1D'
+  const { activeTimeframe, setActiveTimeframe } = useChart();
   const [candles, setCandles] = useState<(Candle | CoinGeckoCandle)[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dataSource, setDataSource] = useState<'coinbase' | 'coingecko'>('coinbase');
 
-  const activeTimeOption = TIME_OPTIONS[activeTimeIndex];
+  // Find the active time option by label
+  const activeTimeIndex = TIME_OPTIONS.findIndex(option => option.label === activeTimeframe);
+  const activeTimeOption = TIME_OPTIONS[activeTimeIndex] || TIME_OPTIONS[2]; // Default to '1D'
+
+  const handleTimeframeChange = (index: number) => {
+    setActiveTimeframe(TIME_OPTIONS[index].label);
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -100,7 +108,7 @@ export const PriceChartCard: React.FC = () => {
       mounted = false;
       clearInterval(interval);
     };
-  }, [activeTimeOption.granularity, activeTimeOption.count]);
+  }, [activeTimeframe]); // Use activeTimeframe instead of individual properties
 
   // Prepare chart data
   const chartData = {
@@ -111,6 +119,9 @@ export const PriceChartCard: React.FC = () => {
       
       if (activeTimeOption.label === '1W') {
         return `${date.getMonth() + 1}/${date.getDate()} ${hours}:${minutes}`;
+      }
+      if (activeTimeOption.label === '1M') {
+        return `${date.getMonth() + 1}/${date.getDate()}`;
       }
       if (activeTimeOption.label === '1Y') {
         return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -224,8 +235,8 @@ export const PriceChartCard: React.FC = () => {
               <TimeButton
                 key={option.label}
                 label={option.label}
-                isActive={activeTimeIndex === index}
-                onClick={() => setActiveTimeIndex(index)}
+                isActive={activeTimeframe === option.label}
+                onClick={() => handleTimeframeChange(index)}
               />
             ))}
           </>

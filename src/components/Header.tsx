@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useChart } from '../contexts/ChartContext';
 import { LoginModal } from './LoginModal';
 
 interface HeaderProps {
@@ -8,6 +9,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
   const { user, isAuthenticated, logout, isLoading } = useAuth();
+  const { activeTimeframe, setActiveTimeframe } = useChart();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
@@ -59,6 +61,24 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
           <a className="text-sm font-medium text-text-secondary hover:text-primary transition-colors" href="#">On-Chain</a>
           <a className="text-sm font-medium text-text-secondary hover:text-primary transition-colors" href="#">Derivatives</a>
         </nav>
+
+        {/* Quick-Access Timeframe Buttons */}
+        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-surface-dark rounded-lg">
+          <span className="text-xs font-medium text-text-secondary mr-1">Chart:</span>
+          {['1M', '1Y', '5Y'].map((timeframe) => (
+            <button
+              key={timeframe}
+              onClick={() => setActiveTimeframe(timeframe)}
+              className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all duration-200 ${
+                activeTimeframe === timeframe
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'text-text-secondary hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-[#3b4754]'
+              }`}
+            >
+              {timeframe}
+            </button>
+          ))}
+        </div>
         
         {/* Actions */}
         <div className="flex gap-2">

@@ -28,7 +28,8 @@ export interface CoinGeckoCandle {
 export async function fetchBTCHistoricalData(
   days: number | 'max' = 365
 ): Promise<CoinGeckoMarketData> {
-  const url = `${BASE_URL}/coins/bitcoin/market_chart?vs_currency=usd&days=${days}&interval=${days > 90 ? 'daily' : 'hourly'}`;
+  const daysNum = typeof days === 'number' ? days : 1825; // Default to 5 years for 'max'
+  const url = `${BASE_URL}/coins/bitcoin/market_chart?vs_currency=usd&days=${days}&interval=${daysNum > 90 ? 'daily' : 'hourly'}`;
   
   const response = await fetch(url);
   

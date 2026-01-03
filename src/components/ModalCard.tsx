@@ -8,7 +8,7 @@ interface ModalCardProps {
   modalContent: React.ReactNode;
 }
 
-export const ModalCard: React.FC<ModalCardProps> = ({ id, children, modalTitle, modalContent }) => {
+export const ModalCard: React.FC<ModalCardProps> = ({ children, modalTitle, modalContent }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -115,7 +115,7 @@ export const ModalCard: React.FC<ModalCardProps> = ({ id, children, modalTitle, 
 interface ModalRowProps {
   label: string;
   value: string;
-  valueColor?: 'default' | 'success' | 'danger';
+  valueColor?: 'default' | 'success' | 'danger' | 'warning';
   subValue?: string;
 }
 
@@ -123,7 +123,8 @@ export const ModalRow: React.FC<ModalRowProps> = ({ label, value, valueColor = '
   const valueColorClass = {
     default: 'text-slate-900 dark:text-white',
     success: 'text-success',
-    danger: 'text-danger'
+    danger: 'text-danger',
+    warning: 'text-yellow-500'
   }[valueColor];
 
   return (

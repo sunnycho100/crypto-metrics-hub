@@ -15,12 +15,14 @@ A modern React + TypeScript dashboard for Bitcoin metrics monitoring with live d
   - 24-hour and 30-day volume metrics
   - Auto-refresh every 30-60 seconds
 - ✅ **Interactive Price Chart**
-  - Live OHLCV candlestick data from Coinbase (1H, 4H, 1D, 1W, 1Y)
+  - Live OHLCV candlestick data from Coinbase (1H, 4H, 1D, 1W, 1M, 1Y)
   - Extended historical data from CoinGecko (5Y)
-  - Multiple timeframes: 1H, 4H, 1D, 1W, 1Y, 5Y
+  - Multiple timeframes: 1H, 4H, 1D, 1W, 1M, 1Y, 5Y
+  - Quick-access header buttons for popular timeframes (1M, 1Y, 5Y)
   - Chart.js with smooth animations and gradients
   - Responsive tooltips with detailed price info
   - Automatic data source switching (Coinbase for recent, CoinGecko for historical)
+  - Global state management for timeframe synchronization
 - ✅ **KPI Cards with Live Data**
   - Bitcoin Price (live from Coinbase)
   - 24H Volume (live from Coinbase)
@@ -480,6 +482,7 @@ const MyCard = () => (
 For a detailed list of all changes, updates, and version history, see [CHANGELOG.md](CHANGELOG.md).
 
 ### Recent Updates
+- **v1.3.1** (2026-01-03): Added header quick-access buttons and 1M timeframe with global chart state management
 - **v1.3.0** (2026-01-03): Extended price chart timeframes with 1Y and 5Y data (Coinbase + CoinGecko APIs)
 - **v1.2.1** (2026-01-02): Security hardening, comprehensive .gitignore, and security documentation
 - **v1.2.0** (2026-01-02): Added authentication system with Express.js backend, JWT, and login UI
@@ -490,7 +493,7 @@ For a detailed list of all changes, updates, and version history, see [CHANGELOG
 
 #### ✅ Fully Implemented (Live Data)
 - **Bitcoin Price & Volume** - Coinbase Exchange API
-- **Price Chart** - Live OHLCV data with multiple timeframes (1H-1Y from Coinbase, 5Y from CoinGecko)
+- **Price Chart** - Live OHLCV data with 7 timeframes (1H-1Y from Coinbase, 5Y from CoinGecko) + quick-access controls
 - **User Authentication** - JWT-based login/register system
 
 #### ⏳ Mock Data (Needs API Integration)
