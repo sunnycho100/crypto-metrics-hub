@@ -15,10 +15,12 @@ A modern React + TypeScript dashboard for Bitcoin metrics monitoring with live d
   - 24-hour and 30-day volume metrics
   - Auto-refresh every 30-60 seconds
 - ✅ **Interactive Price Chart**
-  - Live OHLCV candlestick data from Coinbase
-  - Multiple timeframes: 1H, 4H, 1D, 1W
+  - Live OHLCV candlestick data from Coinbase (1H, 4H, 1D, 1W, 1Y)
+  - Extended historical data from CoinGecko (5Y)
+  - Multiple timeframes: 1H, 4H, 1D, 1W, 1Y, 5Y
   - Chart.js with smooth animations and gradients
   - Responsive tooltips with detailed price info
+  - Automatic data source switching (Coinbase for recent, CoinGecko for historical)
 - ✅ **KPI Cards with Live Data**
   - Bitcoin Price (live from Coinbase)
   - 24H Volume (live from Coinbase)
@@ -46,6 +48,69 @@ A modern React + TypeScript dashboard for Bitcoin metrics monitoring with live d
 - ⏳ Data export functionality (CSV, PDF)
 - ⏳ Customizable dashboard widgets
 - ⏳ Alert creation and notifications
+
+## 📋 Missing API Connections TODO
+
+The following components display mock data and need API integrations:
+
+### High Priority Data Sources
+
+| Component | Current Status | Required API | Implementation Notes |
+|-----------|----------------|--------------|----------------------|
+| **Market Cap KPI Card** | 📊 Mock Data | CoinGecko/CoinMarketCap | Free tier available, no auth required |
+| **Open Interest KPI Card** | 📊 Mock Data | Deribit/Binance Futures | May require API key for higher limits |
+| **MVRV Ratio** | 📊 Mock Data | Glassnode/CryptoQuant | Paid API, premium metrics |
+| **Active Addresses** | 📊 Mock Data | Glassnode/CryptoQuant | Paid API, on-chain metrics |
+| **Hash Rate** | 📊 Mock Data | Blockchain.com/Glassnode | Some endpoints free |
+
+### Medium Priority Components
+
+| Component | Current Status | Required API | Implementation Notes |
+|-----------|----------------|--------------|----------------------|
+| **Derivatives Table** | 📊 Mock Data | Multiple exchanges (Binance, Deribit, etc.) | Aggregate multiple sources |
+| **Market Pulse Card** | 📊 Mock Data | Social sentiment APIs (LunarCrush, etc.) | News/sentiment integration |
+| **Composite Health** | 📊 Mock Data | Calculated from multiple sources | Algorithm based on other metrics |
+| **Alerts Configuration** | 🚧 UI Only | Backend alert system | Database + notification service |
+
+### Recommended Implementation Order
+
+1. **CoinGecko Integration** - Easy win for Market Cap data
+   ```typescript
+   // /src/services/coingecko.ts
+   const COINGECKO_API = 'https://api.coingecko.com/api/v3';
+   
+   export async function fetchMarketCapData() {
+     // Implementation needed
+   }
+   ```
+
+2. **Binance Futures API** - For Open Interest data
+   ```typescript
+   // /src/services/binance.ts 
+   const BINANCE_API = 'https://fapi.binance.com/fapi/v1';
+   
+   export async function fetchOpenInterest() {
+     // Implementation needed
+   }
+   ```
+
+3. **Blockchain.com API** - For basic on-chain metrics
+   ```typescript
+   // /src/services/blockchain.ts
+   const BLOCKCHAIN_API = 'https://blockchain.info';
+   
+   export async function fetchHashRate() {
+     // Implementation needed
+   }
+   ```
+
+4. **Premium APIs** - Glassnode/CryptoQuant for advanced metrics
+   ```typescript
+   // /src/services/glassnode.ts (requires API key)
+   export async function fetchMVRVRatio() {
+     // Implementation needed
+   }
+   ```
 
 ## 🔐 Authentication System
 
@@ -148,7 +213,8 @@ btc_metrics_hub/
 │   │   └── AuthContext.tsx          # Authentication context provider
 │   ├── services/
 │   │   ├── auth.ts                  # Authentication API service
-│   │   └── coinbase.ts              # Coinbase API service
+│   │   ├── coinbase.ts              # Coinbase API service (1H-1Y data)
+│   │   └── coingecko.ts             # CoinGecko API service (5Y data)
 │   ├── types/
 │   │   └── coinbase.ts              # TypeScript type definitions
 │   ├── App.tsx                      # Main app component
@@ -237,19 +303,76 @@ npm run start        # Start production server
 
 ## 📊 API Integration
 
-### Coinbase Exchange API
+### Current Integrations
+
+#### ✅ Coinbase Exchange API (Implemented)
 
 The app uses the public Coinbase Exchange API endpoints:
 
 - `/products/btc-usd/candles` - OHLCV candlestick data
-- `/products/btc-usd/stats` - 24-hour statistics
+- `/products/btc-usd/stats` - 24-hour statistics  
 - `/products/btc-usd/ticker` - Current ticker data
 
 **No API key required** - these are public endpoints with rate limiting.
+**Data Range**: ~1 year of historical data (used for 1H, 4H, 1D, 1W, 1Y timeframes)
 
-### Available Functions
+#### ✅ CoinGecko API (Implemented)
+
+Used for extended historical data:
+
+- `/coins/bitcoin/market_chart` - Multi-year historical price data
+- **Purpose**: 5-year chart timeframe
+- **Rate Limit**: 30 calls/minute (free tier)
+- **Auth**: None required
+- **Data Range**: 5+ years of historical data
+
+### Missing Integrations (TODO)
+
+#### 🔧 CoinGecko API (Free - Recommended Next)
+```typescript
+// Endpoint: https://api.coingecko.com/api/v3/simple/price
+// Purpose: Market cap, price, 24h change, market dominance
+// Rate Limit: 30 calls/minute (free tier)
+// Auth: None required
+```
+
+#### 🔧 Binance Futures API (Free with limits)
+```typescript
+// Endpoint: https://fapi.binance.com/fapi/v1/openInterest
+// Purpose: Open interest data for derivatives
+// Rate Limit: 2400 requests per minute
+// Auth: Optional (higher limits with API key)
+```
+
+#### 🔧 Blockchain.com API (Free)
+```typescript
+// Endpoint: https://blockchain.info/q/hashrate
+// Purpose: Network hash rate, difficulty
+// Rate Limit: Reasonable usage
+// Auth: None required
+```
+
+#### 💰 Glassnode API (Paid - Premium metrics)
+```typescript
+// Endpoint: https://api.glassnode.com/v1/metrics
+// Purpose: MVRV ratio, active addresses, on-chain metrics
+// Rate Limit: 100 requests/hour (free tier has limited metrics)
+// Auth: API key required
+```
+
+#### 🔧 CoinGecko API (Free - For 5Y Chart Data)
+```typescript
+// Endpoint: https://api.coingecko.com/api/v3/coins/bitcoin/market_chart
+// Purpose: Extended historical price data (up to 5+ years)
+// Rate Limit: 30 calls/minute (free tier)
+// Auth: None required
+// Note: Coinbase only provides ~1 year, CoinGecko provides multi-year data
+```
+
+### Available Functions (Current Implementation)
 
 ```typescript
+// Coinbase API - For recent data (1H to 1Y)
 import { fetchBTCCandles, fetchBTCStats, fetchBTCTicker } from './services/coinbase';
 
 // Fetch candle data with different granularities
@@ -260,9 +383,15 @@ const dailyData = await fetchBTCCandles(86400); // 1-day candles
 const stats = await fetchBTCStats();
 console.log(stats.last, stats.volume, stats.high, stats.low);
 
-// Get current ticker
-const ticker = await fetchBTCTicker();
-console.log(ticker.price, ticker.bid, ticker.ask);
+// CoinGecko API - For historical data (5Y)
+import { fetch5YearBTCData, fetchBTCHistoricalData } from './services/coingecko';
+
+// Get 5 years of historical data
+const fiveYearData = await fetch5YearBTCData();
+console.log(fiveYearData.length, 'daily candles over 5 years');
+
+// Custom historical range
+const customData = await fetchBTCHistoricalData(730); // 2 years
 ```
 
 ## 📋 Recommended Next Steps
@@ -351,10 +480,27 @@ const MyCard = () => (
 For a detailed list of all changes, updates, and version history, see [CHANGELOG.md](CHANGELOG.md).
 
 ### Recent Updates
+- **v1.3.0** (2026-01-03): Extended price chart timeframes with 1Y and 5Y data (Coinbase + CoinGecko APIs)
 - **v1.2.1** (2026-01-02): Security hardening, comprehensive .gitignore, and security documentation
 - **v1.2.0** (2026-01-02): Added authentication system with Express.js backend, JWT, and login UI
 - **v1.1.0** (2026-01-02): Added "(IN PROGRESS)" labels to cards pending API integration
 - **v1.0.0** (2025-12-31): Initial release with Coinbase API integration
+
+### Current Implementation Status
+
+#### ✅ Fully Implemented (Live Data)
+- **Bitcoin Price & Volume** - Coinbase Exchange API
+- **Price Chart** - Live OHLCV data with multiple timeframes (1H-1Y from Coinbase, 5Y from CoinGecko)
+- **User Authentication** - JWT-based login/register system
+
+#### ⏳ Mock Data (Needs API Integration)
+- **Market Cap** - Currently showing $1.24T (static)
+- **Open Interest** - Currently showing $14.8B (static)
+- **MVRV Ratio** - Currently showing 1.84 (static)
+- **Active Addresses** - Currently showing 892K (static)
+- **Hash Rate** - Currently showing 580 EH/s (static)
+- **Derivatives Table** - Showing sample exchange data
+- **Market Pulse** - Showing sample news/sentiment data
 
 ## 📄 License
 
@@ -366,6 +512,6 @@ Contributions are welcome! Feel free to fork and customize for your needs.
 
 ---
 
-**Last Updated**: 2026-01-02  
-**Status**: ✅ Active (Live Coinbase API + Auth Server)  
-**Version**: 1.2.1
+**Last Updated**: 2026-01-03  
+**Status**: ✅ Active (Live Coinbase API + CoinGecko API + Auth Server)  
+**Version**: 1.3.0

@@ -6,6 +6,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.3.0] - 2026-01-03
+
+### Added - Extended Chart Timeframes
+- **1Y Timeframe** - Added 1-year chart view using Coinbase daily candles
+  - 365 days of daily OHLCV data from Coinbase Exchange API
+  - Auto-refresh every 60 seconds
+  - Date format: YYYY-MM-DD for readability
+  
+- **5Y Timeframe** - Added 5-year historical chart view using CoinGecko API
+  - ~1,825 days of historical Bitcoin price data
+  - CoinGecko API integration for extended historical coverage
+  - Auto-refresh every 5 minutes (optimized for historical data)
+  - Date format: YYYY-MM for multi-year view
+  
+- **CoinGecko API Service** (`/src/services/coingecko.ts`)
+  - `fetch5YearBTCData()` - Fetches 5 years of historical Bitcoin data
+  - `fetchBTCHistoricalData(days)` - Flexible historical data fetching
+  - `convertToCandleFormat()` - Converts CoinGecko format to chart-compatible candles
+  - Rate limit: 30 calls/minute (free tier)
+  
+### Changed - Chart Enhancements
+- **Automatic API Switching** - Chart intelligently uses Coinbase for recent data (1H-1Y) and CoinGecko for historical data (5Y)
+- **Data Source Indicator** - Chart subtitle shows "Live Coinbase Data" or "CoinGecko Historical Data"
+- **Smart Date Formatting** - Different date formats optimized for each timeframe
+- **Enhanced Time Options** - Updated button array with 6 total timeframes: 1H, 4H, 1D, 1W, 1Y, 5Y
+
+### Technical
+- **Mixed Data Type Support** - Chart component now handles both Coinbase and CoinGecko data formats
+- **Optimized Refresh Intervals** - Different refresh rates based on data source (1min for live, 5min for historical)
+- **TypeScript Types** - Added CoinGeckoCandle interface and updated TimeOption type
+
+---
+
 ## [1.2.1] - 2026-01-02
 
 ### Added - Security & Documentation
