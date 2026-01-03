@@ -65,7 +65,7 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
         {/* Quick-Access Timeframe Buttons */}
         <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-surface-dark rounded-lg">
           <span className="text-xs font-medium text-text-secondary mr-1">Chart:</span>
-          {['1M', '1Y', '5Y'].map((timeframe) => (
+          {['1M', '1Y', 'MAX'].map((timeframe) => (
             <button
               key={timeframe}
               onClick={() => setActiveTimeframe(timeframe)}

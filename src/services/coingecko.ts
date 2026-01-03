@@ -34,10 +34,24 @@ export async function fetchBTCHistoricalData(
   const response = await fetch(url);
   
   if (!response.ok) {
-    const errorText = await response.text().catch(() => 'Unknown error');
-    throw new Error(
-      `Failed to fetch BTC historical data from CoinGecko API (${response.status}): ${errorText}`
-    );
+    try {
+      const errorData = await response.json();
+      
+      // Handle specific CoinGecko API limitation error
+      if (errorData.error?.status?.error_code === 10012) {
+        console.warn('CoinGecko free API limits historical data to 365 days. Using maximum available data.');
+        throw new Error('API limitation: Historical data limited to 365 days on free plan');
+      }
+      
+      const errorMessage = errorData.error?.status?.error_message || 'Unknown API error';
+      throw new Error(`CoinGecko API Error (${response.status}): ${errorMessage}`);
+    } catch (parseError) {
+      // If JSON parsing fails, fall back to text error
+      const errorText = await response.text().catch(() => 'Unknown error');
+      throw new Error(
+        `Failed to fetch BTC historical data from CoinGecko API (${response.status}): ${errorText}`
+      );
+    }
   }
   
   return await response.json();
@@ -74,11 +88,11 @@ export function convertToCandleFormat(marketData: CoinGeckoMarketData): CoinGeck
 }
 
 /**
- * Fetches 5-year Bitcoin data from CoinGecko
+ * Fetches maximum historical Bitcoin data from CoinGecko (Free API limit: 365 days)
  * 
- * @returns 5 years of daily candle data
+ * @returns Up to 365 days of daily candle data (maximum allowed by free API)
  */
 export async function fetch5YearBTCData(): Promise<CoinGeckoCandle[]> {
-  const marketData = await fetchBTCHistoricalData(1825); // ~5 years in days
+  const marketData = await fetchBTCHistoricalData(365); // Max allowed by free API
   return convertToCandleFormat(marketData);
 }

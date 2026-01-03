@@ -44,7 +44,7 @@ const TIME_OPTIONS: TimeOption[] = [
   { label: '1W', granularity: 3600, count: 168 },   // 1-hour candles for 1 week
   { label: '1M', granularity: 21600, count: 120 },  // 6-hour candles for 1 month
   { label: '1Y', granularity: 86400, count: 365 },  // Daily candles for 1 year
-  { label: '5Y', granularity: 'coingecko', count: 1825 }, // 5-year data from CoinGecko
+  { label: 'MAX', granularity: 'coingecko', count: 365 }, // Maximum historical data from CoinGecko (365 days)
 ];
 
 export const PriceChartCard: React.FC = () => {
@@ -101,7 +101,7 @@ export const PriceChartCard: React.FC = () => {
     fetchData();
 
     // Auto-refresh interval - longer for historical data
-    const refreshInterval = activeTimeOption.granularity === 'coingecko' ? 300000 : 60000; // 5min for 5Y, 1min for others
+    const refreshInterval = activeTimeOption.granularity === 'coingecko' ? 300000 : 60000; // 5min for MAX, 1min for others
     const interval = setInterval(fetchData, refreshInterval);
 
     return () => {
@@ -126,8 +126,8 @@ export const PriceChartCard: React.FC = () => {
       if (activeTimeOption.label === '1Y') {
         return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
       }
-      if (activeTimeOption.label === '5Y') {
-        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      if (activeTimeOption.label === 'MAX') {
+        return `${date.getMonth() + 1}/${date.getDate()}`;
       }
       return `${hours}:${minutes}`;
     }),

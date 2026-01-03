@@ -32,6 +32,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Real-time feedback and improved error handling
   - Graceful cleanup on script termination
 
+- **CoinGecko API Limitation** - Fixed 5Y timeframe failing due to API restrictions
+  - Changed 5Y timeframe to "MAX" (365 days) to comply with CoinGecko free API limits
+  - Updated CoinGecko service to use maximum allowed historical data (365 days)
+  - Improved error handling with specific API limitation detection
+  - Better user feedback for API constraints
+
 ## [1.3.0] - 2026-01-03
 
 ### Added - Extended Chart Timeframes
