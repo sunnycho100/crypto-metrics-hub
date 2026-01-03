@@ -6,41 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [1.3.1] - 2026-01-03
-
-### Added - Quick-Access Timeframe Controls
-- **Header Timeframe Buttons** - Added prominent quick-access buttons in the header for popular timeframes
-  - 1M, 1Y, and 5Y buttons for instant chart switching
-  - Integrated with chart state management via React Context
-  - Responsive design (hidden on mobile, visible on medium screens and up)
-  - Clean UI with active state highlighting
-
-- **1M Timeframe** - Added 1-month chart view using 6-hour candles
-  - 120 candles (6-hour intervals) covering approximately 1 month
-  - Optimized granularity for medium-term analysis
-  - Date format: MM/DD for readability
-
-### Enhanced
-- **Chart State Management** - Implemented React Context for global chart timeframe state
-  - Shared state between chart component and header controls
-  - Centralized timeframe management for better user experience
+## [1.3.3] - 2026-01-03
 
 ### Fixed
-- **Dynamic Port Detection** - Enhanced start.sh script to automatically detect Vite's port
-  - Script now opens browser on the actual port Vite uses (e.g., 3001, 3002) instead of hardcoded 3000
-  - Automatic port detection when port 3000 is busy
-  - Real-time feedback and improved error handling
-  - Graceful cleanup on script termination
+- **CoinGecko API Limitation** - Changed 5Y timeframe to "MAX" (365 days) to comply with free API limits
+- **Dynamic Port Detection** - Enhanced start.sh script to open browser on correct port when 3000 is busy
 
-- **CoinGecko API Limitation** - Fixed 5Y timeframe failing due to API restrictions
-  - Changed 5Y timeframe to "MAX" (365 days) to comply with CoinGecko free API limits
-  - Updated CoinGecko service to use maximum allowed historical data (365 days)
-  - Improved error handling with specific API limitation detection
-  - Better user feedback for API constraints
+## [1.3.2] - 2026-01-03
+
+### Added
+- **Header Quick-Access Buttons** - Added 1M, 1Y, MAX timeframe buttons in header
+- **1M Timeframe** - Added 1-month chart view with 6-hour candles
+- **Global Chart State** - Implemented React Context for timeframe synchronization
 
 ## [1.3.0] - 2026-01-03
 
-### Added - Extended Chart Timeframes
+### Added
+- **1Y Timeframe** - Added 1-year chart view using Coinbase daily candles
+- **5Y Timeframe** - Added 5-year historical chart view using CoinGecko API
+- **Dual API Support** - Automatic switching between Coinbase and CoinGecko for different timeframes
 - **1Y Timeframe** - Added 1-year chart view using Coinbase daily candles
   - 365 days of daily OHLCV data from Coinbase Exchange API
   - Auto-refresh every 60 seconds
