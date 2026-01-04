@@ -6,6 +6,37 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.4.0] - 2026-01-04
+
+### Enhanced - Volume Analysis 📊
+- **3-Day Moving Average** - Enhanced 24H volume analysis with intelligent smoothing
+  - Fetches 7 days of historical daily candle data from Coinbase API
+  - Calculates 3-day moving average from recent complete trading days  
+  - Compares current 24H volume against smoothed baseline (reduces volatility)
+  - Smart fallback to 30-day average if historical data unavailable
+  
+- **Enhanced Volume Modal** - Improved user experience with detailed methodology
+  - Shows both 3-day moving average and 30-day average values
+  - Color-coded analysis method indicators (info/warning/success)
+  - Explanatory note about volatility reduction benefits
+  - Transparent methodology display for user understanding
+
+- **Robust Error Handling** - Comprehensive fallback system
+  - Graceful degradation if API calls fail
+  - Console logging for debugging and monitoring
+  - State management to track active calculation method
+
+### Technical Improvements
+- **Smart Volume Calculation** - `calculateMovingAverage()` function for statistical smoothing
+- **Historical Data Integration** - Extended Coinbase API usage for volume trend analysis  
+- **Enhanced Modal Components** - Added `info` and `neutral` color options to ModalRow
+- **Developer Documentation** - Added VOLUME_ANALYSIS_ENHANCEMENT.md with detailed explanation
+
+### UI Polish
+- **Professional Color Scheme** - Changed analysis method indicator from blue to subtle gray for more professional appearance (eliminates hyperlink-like styling)
+
+---
+
 ## [1.3.3] - 2026-01-03
 
 ### Fixed

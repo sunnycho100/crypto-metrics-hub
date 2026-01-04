@@ -125,7 +125,7 @@ export const ModalRow: React.FC<ModalRowProps> = ({ label, value, valueColor = '
     success: 'text-success',
     danger: 'text-danger',
     warning: 'text-yellow-500',
-    info: 'text-blue-500',
+    info: 'text-slate-600 dark:text-slate-300',
     neutral: 'text-slate-500 dark:text-slate-400'
   }[valueColor];
 
