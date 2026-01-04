@@ -115,7 +115,7 @@ export const ModalCard: React.FC<ModalCardProps> = ({ children, modalTitle, moda
 interface ModalRowProps {
   label: string;
   value: string;
-  valueColor?: 'default' | 'success' | 'danger' | 'warning';
+  valueColor?: 'default' | 'success' | 'danger' | 'warning' | 'info' | 'neutral';
   subValue?: string;
 }
 
@@ -124,7 +124,9 @@ export const ModalRow: React.FC<ModalRowProps> = ({ label, value, valueColor = '
     default: 'text-slate-900 dark:text-white',
     success: 'text-success',
     danger: 'text-danger',
-    warning: 'text-yellow-500'
+    warning: 'text-yellow-500',
+    info: 'text-blue-500',
+    neutral: 'text-slate-500 dark:text-slate-400'
   }[valueColor];
 
   return (

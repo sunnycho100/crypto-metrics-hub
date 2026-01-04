@@ -25,7 +25,7 @@ A modern React + TypeScript dashboard for Bitcoin metrics monitoring with live d
   - Global state management for timeframe synchronization
 - ✅ **KPI Cards with Live Data**
   - Bitcoin Price (live from Coinbase)
-  - 24H Volume (live from Coinbase)
+  - 24H Volume (live from Coinbase with 3-day moving average analysis)
   - Market Cap (mock data - requires external API)
   - Open Interest (mock data - requires derivatives API)
 - ✅ **Dashboard Components**
@@ -317,6 +317,8 @@ The app uses the public Coinbase Exchange API endpoints:
 
 **No API key required** - these are public endpoints with rate limiting.
 **Data Range**: ~1 year of historical data (used for 1H, 4H, 1D, 1W, 1Y timeframes)
+
+**Enhanced Volume Analysis**: The 24H volume feature uses a 3-day moving average for smoother volatility analysis, automatically falling back to 30-day average if historical data is unavailable. This provides more stable and meaningful volume change percentages.
 
 #### ✅ CoinGecko API (Implemented)
 

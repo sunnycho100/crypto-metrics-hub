@@ -1,19 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { ModalCard, ModalRow } from './ModalCard';
 import { MetricCard } from './Card';
-import { fetchBTCStats } from '../services/coinbase';
-import type { ProductStats } from '../types/coinbase';
+import { fetchBTCStats, fetchBTCCandles } from '../services/coinbase';
+import type { ProductStats, Candle } from '../types/coinbase';
 
 export const KPICards: React.FC = () => {
   const [stats, setStats] = useState<ProductStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [historicalVolumes, setHistoricalVolumes] = useState<number[]>([]);
+  const [useMovingAverage, setUseMovingAverage] = useState(false);
+
+  // Calculate 3-day moving average from historical volumes
+  const calculateMovingAverage = (volumes: number[], days: number = 3): number => {
+    if (volumes.length < days) return volumes.reduce((a, b) => a + b, 0) / volumes.length;
+    const recent = volumes.slice(-days);
+    return recent.reduce((a, b) => a + b, 0) / recent.length;
+  };
 
   useEffect(() => {
     let mounted = true;
 
     const fetchData = async () => {
       try {
+        // Fetch current stats
         const data = await fetchBTCStats();
+        
+        // Fetch historical daily volume data (7 days to calculate 3-day MA)
+        try {
+          const end = Date.now();
+          const start = end - (7 * 24 * 60 * 60 * 1000); // 7 days ago
+          const candles = await fetchBTCCandles(86400, Math.floor(start / 1000), Math.floor(end / 1000));
+          
+          // Extract volumes (exclude today's incomplete volume)
+          const volumes = candles.slice(0, -1).map(candle => candle.volume);
+          console.log('✓ Historical volume data fetched:', volumes.length, 'days');
+          console.log('Volume values:', volumes);
+          
+          if (mounted) {
+            setHistoricalVolumes(volumes);
+            setUseMovingAverage(volumes.length >= 3); // Use MA if we have enough data
+          }
+        } catch (volumeError) {
+          console.warn('Failed to fetch historical volume data, falling back to 30-day average:', volumeError);
+          if (mounted) {
+            setUseMovingAverage(false);
+          }
+        }
+        
         if (mounted) {
           setStats(data);
           setLoading(false);
@@ -51,14 +84,26 @@ export const KPICards: React.FC = () => {
     };
   };
 
-  // Calculate volume change (using 30day as reference)
+  // Calculate volume change (using 3-day moving average or 30day as fallback)
   const calculateVolumeChange = (): { change: string; changeType: 'positive' | 'negative' } => {
     if (!stats) return { change: '0.00%', changeType: 'positive' as const };
     
     const volume24h = parseFloat(stats.volume);
-    const volume30day = parseFloat(stats.volume_30day);
-    const avgDailyVolume = volume30day / 30;
+    let avgDailyVolume: number;
+    
+    if (useMovingAverage && historicalVolumes.length >= 3) {
+      // Use 3-day moving average for smoother comparison
+      avgDailyVolume = calculateMovingAverage(historicalVolumes, 3);
+      console.log('📊 Using 3-day moving average:', avgDailyVolume.toFixed(2), 'BTC');
+    } else {
+      // Fallback to 30-day average
+      const volume30day = parseFloat(stats.volume_30day);
+      avgDailyVolume = volume30day / 30;
+      console.log('📊 Using 30-day average:', avgDailyVolume.toFixed(2), 'BTC (fallback)');
+    }
+    
     const changePercent = ((volume24h - avgDailyVolume) / avgDailyVolume) * 100;
+    console.log('📈 Volume change calculation:', volume24h.toFixed(2), 'vs', avgDailyVolume.toFixed(2), '=', changePercent.toFixed(2) + '%');
     
     return {
       change: `${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%`,
@@ -129,14 +174,45 @@ export const KPICards: React.FC = () => {
         <>
           <ModalRow label="24h Volume" value={formatVolume(stats.volume)} />
           <ModalRow label="30d Volume" value={formatVolume(stats.volume_30day)} />
+          {useMovingAverage && historicalVolumes.length >= 3 ? (
+            <>
+              <ModalRow 
+                label="3-day Moving Avg" 
+                value={formatVolume(calculateMovingAverage(historicalVolumes, 3).toString())} 
+              />
+              <ModalRow 
+                label="vs 3-day MA" 
+                value={volumeChange.change}
+                valueColor={volumeChange.changeType === 'positive' ? 'success' : 'danger'} 
+              />
+              <ModalRow 
+                label="Analysis Method" 
+                value="3-day Moving Average (smoother)" 
+                valueColor="info"
+              />
+            </>
+          ) : (
+            <>
+              <ModalRow 
+                label="Avg Daily Volume" 
+                value={formatVolume((parseFloat(stats.volume_30day) / 30).toString())} 
+              />
+              <ModalRow 
+                label="vs 30-day Avg" 
+                value={volumeChange.change}
+                valueColor={volumeChange.changeType === 'positive' ? 'success' : 'danger'} 
+              />
+              <ModalRow 
+                label="Analysis Method" 
+                value="30-day Average (fallback)" 
+                valueColor="warning"
+              />
+            </>
+          )}
           <ModalRow 
-            label="Avg Daily Volume" 
-            value={formatVolume((parseFloat(stats.volume_30day) / 30).toString())} 
-          />
-          <ModalRow 
-            label="vs Avg" 
-            value={volumeChange.change}
-            valueColor={volumeChange.changeType === 'positive' ? 'success' : 'danger'} 
+            label="Note" 
+            value={useMovingAverage ? "Using 3-day MA to reduce volatility" : "Historical data unavailable"}
+            valueColor="neutral"
           />
         </>
       ) : (
