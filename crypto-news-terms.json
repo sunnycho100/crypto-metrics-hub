@@ -1,0 +1,27 @@
+{
+  "description": "Crypto news search terms - Update this file to customize news filtering",
+  "lastUpdated": "2026-01-06",
+  "searchTerms": [
+    "Bitcoin",
+    "BTC",
+    "cryptocurrency",
+    "crypto",
+    "blockchain",
+    "Bitcoin ETF",
+    "Bitcoin mining",
+    "Bitcoin halving",
+    "Satoshi",
+    "Lightning Network",
+    "Bitcoin regulation",
+    "Bitcoin adoption",
+    "institutional Bitcoin",
+    "Bitcoin price",
+    "Bitcoin market"
+  ],
+  "excludeTerms": [
+    "altcoin",
+    "Ethereum only",
+    "NFT"
+  ],
+  "notes": "Add or remove terms to refine news results. Terms are case-insensitive and will be combined with OR logic."
+}

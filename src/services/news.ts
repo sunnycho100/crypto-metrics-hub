@@ -1,6 +1,7 @@
 /**
  * News Service - Aggregates Bitcoin/crypto news from multiple sources
  * Sources: NewsAPI.org (general news) + CryptoPanic (crypto-specific)
+ * Search terms are configurable via crypto-news-terms.json
  */
 
 export interface NewsArticle {
@@ -12,6 +13,11 @@ export interface NewsArticle {
   category: 'news' | 'analysis' | 'regulation';
 }
 
+interface CryptoNewsConfig {
+  searchTerms: string[];
+  excludeTerms: string[];
+}
+
 // Using NewsAPI.org free tier - requires API key
 const NEWS_API_KEY = import.meta.env.VITE_NEWS_API_KEY || 'demo';
 const NEWS_API_BASE = 'https://newsapi.org/v2';
@@ -20,12 +26,49 @@ const NEWS_API_BASE = 'https://newsapi.org/v2';
 const CRYPTOPANIC_BASE = 'https://cryptopanic.com/api/v1';
 const CRYPTOPANIC_KEY = import.meta.env.VITE_CRYPTOPANIC_API_KEY || 'free';
 
+// Load search terms from config
+let newsConfig: CryptoNewsConfig = {
+  searchTerms: ['Bitcoin', 'BTC', 'cryptocurrency'],
+  excludeTerms: []
+};
+
+/**
+ * Load crypto news search terms from configuration file
+ */
+async function loadNewsConfig(): Promise<void> {
+  try {
+    const response = await fetch('/crypto-news-terms.json');
+    if (response.ok) {
+      const config = await response.json();
+      newsConfig = {
+        searchTerms: config.searchTerms || newsConfig.searchTerms,
+        excludeTerms: config.excludeTerms || []
+      };
+      console.log('✓ Loaded crypto news terms:', newsConfig.searchTerms.length, 'terms');
+    }
+  } catch (error) {
+    console.warn('Using default search terms:', error);
+  }
+}
+
+// Load config on module initialization
+loadNewsConfig();
+
+/**
+ * Build search query from configured terms
+ */
+function buildSearchQuery(): string {
+  // Use OR logic for multiple terms: (Bitcoin OR BTC OR cryptocurrency)
+  return newsConfig.searchTerms.join(' OR ');
+}
+
 /**
  * Fetch Bitcoin news from NewsAPI
  */
 async function fetchNewsAPIArticles(): Promise<NewsArticle[]> {
   try {
-    const url = `${NEWS_API_BASE}/everything?q=bitcoin&sortBy=publishedAt&pageSize=5&apiKey=${NEWS_API_KEY}`;
+    const searchQuery = buildSearchQuery();
+    const url = `${NEWS_API_BASE}/everything?q=${encodeURIComponent(searchQuery)}&sortBy=publishedAt&pageSize=5&language=en&apiKey=${NEWS_API_KEY}`;
     const response = await fetch(url);
     
     if (!response.ok) {
@@ -34,7 +77,7 @@ async function fetchNewsAPIArticles(): Promise<NewsArticle[]> {
     
     const data = await response.json();
     
-    return data.articles?.slice(0, 3).map((article: any, index: number) => ({
+    const articles = data.articles?.slice(0, 3).map((article: any, index: number) => ({
       id: `newsapi-${index}-${Date.now()}`,
       title: article.title,
       source: article.source?.name || 'Unknown',
@@ -42,10 +85,27 @@ async function fetchNewsAPIArticles(): Promise<NewsArticle[]> {
       url: article.url,
       category: categorizeNews(article.title)
     })) || [];
+    
+    // Filter out excluded terms
+    return filterExcludedTerms(articles);
   } catch (error) {
     console.warn('Failed to fetch from NewsAPI:', error);
     return [];
   }
+}
+
+/**
+ * Filter out articles containing excluded terms
+ */
+function filterExcludedTerms(articles: NewsArticle[]): NewsArticle[] {
+  if (newsConfig.excludeTerms.length === 0) return articles;
+  
+  return articles.filter(article => {
+    const titleLower = article.title.toLowerCase();
+    return !newsConfig.excludeTerms.some(term => 
+      titleLower.includes(term.toLowerCase())
+    );
+  });
 }
 
 /**
@@ -117,6 +177,9 @@ function getRelativeTime(timestamp: string): string {
  */
 export async function fetchBitcoinNews(): Promise<NewsArticle[]> {
   try {
+    // Reload config to pick up any changes
+    await loadNewsConfig();
+    
     // Fetch from both sources in parallel
     const [newsApiArticles, cryptoPanicArticles] = await Promise.all([
       fetchNewsAPIArticles(),
