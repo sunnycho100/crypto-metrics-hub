@@ -32,10 +32,15 @@ let newsConfig: CryptoNewsConfig = {
   excludeTerms: []
 };
 
+let configLoaded = false;
+let configLoadPromise: Promise<void> | null = null;
+
 /**
  * Load crypto news search terms from configuration file
  */
 async function loadNewsConfig(): Promise<void> {
+  if (configLoaded) return;
+  
   try {
     const response = await fetch('/crypto-news-terms.json');
     if (response.ok) {
@@ -44,15 +49,27 @@ async function loadNewsConfig(): Promise<void> {
         searchTerms: config.searchTerms || newsConfig.searchTerms,
         excludeTerms: config.excludeTerms || []
       };
-      console.log('✓ Loaded crypto news terms:', newsConfig.searchTerms.length, 'terms');
+      console.log('✓ Loaded crypto news config:');
+      console.log('  - Search terms:', newsConfig.searchTerms.length, 'terms', newsConfig.searchTerms);
+      console.log('  - Exclude terms:', newsConfig.excludeTerms.length, 'terms', newsConfig.excludeTerms);
+      configLoaded = true;
     }
   } catch (error) {
-    console.warn('Using default search terms:', error);
+    console.warn('⚠️ Failed to load crypto-news-terms.json, using defaults:', error);
+    console.log('  - Default search terms:', newsConfig.searchTerms);
+    configLoaded = true;
   }
 }
 
-// Load config on module initialization
-loadNewsConfig();
+/**
+ * Ensure config is loaded before using it
+ */
+async function ensureConfigLoaded(): Promise<void> {
+  if (!configLoadPromise) {
+    configLoadPromise = loadNewsConfig();
+  }
+  await configLoadPromise;
+}
 
 /**
  * Build search query from configured terms
@@ -67,8 +84,12 @@ function buildSearchQuery(): string {
  */
 async function fetchNewsAPIArticles(): Promise<NewsArticle[]> {
   try {
+    // Ensure config is loaded before building query
+    await ensureConfigLoaded();
+    
     const searchQuery = buildSearchQuery();
-    const url = `${NEWS_API_BASE}/everything?q=${encodeURIComponent(searchQuery)}&sortBy=publishedAt&pageSize=5&language=en&apiKey=${NEWS_API_KEY}`;
+    console.log('🔍 NewsAPI search query:', searchQuery);
+    const url = `${NEWS_API_BASE}/everything?q=${encodeURIComponent(searchQuery)}&sortBy=publishedAt&pageSize=10&language=en&apiKey=${NEWS_API_KEY}`;
     const response = await fetch(url);
     
     if (!response.ok) {
@@ -77,7 +98,9 @@ async function fetchNewsAPIArticles(): Promise<NewsArticle[]> {
     
     const data = await response.json();
     
-    const articles = data.articles?.slice(0, 3).map((article: any, index: number) => ({
+    console.log(`✓ NewsAPI returned ${data.articles?.length || 0} articles`);
+    
+    const articles = data.articles?.slice(0, 5).map((article: any, index: number) => ({
       id: `newsapi-${index}-${Date.now()}`,
       title: article.title,
       source: article.source?.name || 'Unknown',
@@ -87,7 +110,9 @@ async function fetchNewsAPIArticles(): Promise<NewsArticle[]> {
     })) || [];
     
     // Filter out excluded terms
-    return filterExcludedTerms(articles);
+    const filtered = filterExcludedTerms(articles);
+    console.log(`✓ After filtering: ${filtered.length} articles (excluded ${articles.length - filtered.length})`);
+    return filtered;
   } catch (error) {
     console.warn('Failed to fetch from NewsAPI:', error);
     return [];
@@ -177,8 +202,10 @@ function getRelativeTime(timestamp: string): string {
  */
 export async function fetchBitcoinNews(): Promise<NewsArticle[]> {
   try {
-    // Reload config to pick up any changes
-    await loadNewsConfig();
+    // Ensure config is loaded first
+    await ensureConfigLoaded();
+    
+    console.log('📰 Fetching Bitcoin news from multiple sources...');
     
     // Fetch from both sources in parallel
     const [newsApiArticles, cryptoPanicArticles] = await Promise.all([
@@ -186,16 +213,31 @@ export async function fetchBitcoinNews(): Promise<NewsArticle[]> {
       fetchCryptoPanicArticles()
     ]);
     
+    console.log(`📊 Results: ${newsApiArticles.length} from NewsAPI, ${cryptoPanicArticles.length} from CryptoPanic`);
+    
     // Combine and deduplicate by title similarity
     const allArticles = [...cryptoPanicArticles, ...newsApiArticles];
     const uniqueArticles = deduplicateArticles(allArticles);
     
+    console.log(`✓ Total unique articles: ${uniqueArticles.length}`);
+    
     // Sort by date (newest first) and return top 5
-    return uniqueArticles
+    const finalArticles = uniqueArticles
       .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
       .slice(0, 5);
+      
+    if (finalArticles.length === 0) {
+      console.warn('⚠️ No articles fetched, using mock data');
+      return getMockNews();
+    }
+    
+    console.log('✅ Returning', finalArticles.length, 'articles');
+    finalArticles.forEach(a => console.log(`  - ${a.title.slice(0, 60)}...`));
+    
+    return finalArticles;
   } catch (error) {
-    console.error('Failed to fetch Bitcoin news:', error);
+    console.error('❌ Failed to fetch Bitcoin news:', error);
+    console.log('📝 Using mock news as fallback');
     return getMockNews(); // Fallback to mock data
   }
 }

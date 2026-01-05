@@ -6,11 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.4.3] - 2026-01-06
+
+### Fixed - News API Integration
+- **Config Loading** - Fixed async config loading to ensure search terms load before API calls
+- **Enhanced Logging** - Added detailed console logging for debugging news fetching
+- **Query Building** - Improved search query construction with proper term loading
+- **Article Count** - Increased NewsAPI fetch from 5 to 10 articles for better selection
+
+### Technical
+- Added `ensureConfigLoaded()` to guarantee config loads before searches
+- Moved config file to `public/` folder for proper Vite serving
+- Enhanced error handling with fallback to mock news
+- Improved console debugging output
+
+---
+
 ## [1.4.2] - 2026-01-06
 
 ### Added - Market Pulse News Integration 📰
 - **Live Bitcoin News** - Integrated dual news sources (CryptoPanic + NewsAPI) for real-time Bitcoin news
-- **Configurable Search Terms** - Created crypto-news-terms.json for easy customization of news search queries
+- **Configurable Search Terms** - Created public/crypto-news-terms.json for easy customization of news search queries
+  - 15 pre-configured crypto-related search terms (Bitcoin, BTC, cryptocurrency, blockchain, etc.)
+  - Exclude terms filter to remove unwanted content
+  - Auto-loaded on news fetch with console logging for transparency
+  - Search query uses OR logic to match any configured term
 - **Smart Categorization** - Auto-categorizes news into News, Regulation, and Analysis
 - **Auto-refresh** - News updates every 5 minutes with manual refresh option
 - **External Links** - Click articles to open in new tab

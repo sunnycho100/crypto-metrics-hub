@@ -1,10 +1,10 @@
 # Crypto News Configuration
 
-This file (`crypto-news-terms.json`) allows you to customize which news articles appear in the Market Pulse card.
+This file (`public/crypto-news-terms.json`) allows you to customize which news articles appear in the Market Pulse card.
 
 ## How It Works
 
-The news service searches for articles matching your configured terms and filters out unwanted content.
+The news service searches for articles matching your configured terms and filters out unwanted content. The configuration file is automatically loaded when fetching news.
 
 ## Customizing Search Terms
 
