@@ -8,6 +8,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [1.4.1] - 2026-01-06
 
+### Added - Market Pulse News Integration 📰
+- **Live Bitcoin News** - Integrated dual news sources (CryptoPanic + NewsAPI) for real-time Bitcoin news
+- **Smart Categorization** - Auto-categorizes news into News, Regulation, and Analysis
+- **Auto-refresh** - News updates every 5 minutes with manual refresh option
+- **External Links** - Click articles to open in new tab
+- **Fallback System** - Graceful degradation to mock news if APIs unavailable
+- **Environment Configuration** - NewsAPI key configured in .env (gitignored for security)
+
 ### Changed - Volume Comparison Mode
 - **Daily Volume Default** - Changed 24h volume to compare against yesterday's volume (day-over-day) instead of 3-day moving average
 - **Toggle Option** - Added button in volume modal to switch between Daily Mode and 3-Day MA Mode

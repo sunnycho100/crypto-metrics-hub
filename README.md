@@ -31,7 +31,7 @@ A modern React + TypeScript dashboard for Bitcoin metrics monitoring with live d
 - ✅ **Dashboard Components**
   - Composite Health Card
   - Alerts & Triggers Card
-  - Market Pulse Card
+  - Market Pulse Card (live Bitcoin news from CryptoPanic & NewsAPI)
   - On-Chain Metrics (mock data)
   - Derivatives Table (mock data)
 - ✅ **Modern UI/UX**
@@ -70,7 +70,7 @@ The following components display mock data and need API integrations:
 | Component | Current Status | Required API | Implementation Notes |
 |-----------|----------------|--------------|----------------------|
 | **Derivatives Table** | 📊 Mock Data | Multiple exchanges (Binance, Deribit, etc.) | Aggregate multiple sources |
-| **Market Pulse Card** | 📊 Mock Data | Social sentiment APIs (LunarCrush, etc.) | News/sentiment integration |
+| **Market Pulse Card** | ✅ Live Data | CryptoPanic + NewsAPI | Bitcoin news aggregation with dual sources |
 | **Composite Health** | 📊 Mock Data | Calculated from multiple sources | Algorithm based on other metrics |
 | **Alerts Configuration** | 🚧 UI Only | Backend alert system | Database + notification service |
 
@@ -260,6 +260,12 @@ cd server
 npm install
 cd ..
 
+# Configure environment variables (optional for news features)
+cp .env.example .env
+# Edit .env and add your API keys:
+# - VITE_NEWS_API_KEY (get from https://newsapi.org/)
+# - VITE_CRYPTOPANIC_API_KEY (optional, defaults to 'free')
+
 # Start both servers (in separate terminals)
 
 # Terminal 1 - Backend server
@@ -269,6 +275,8 @@ npm run dev
 # Terminal 2 - Frontend dev server
 npm run dev
 ```
+
+> **Note**: The app works without API keys - Market Pulse will use fallback mock news data if APIs are unavailable.
 
 ### Development Commands
 
