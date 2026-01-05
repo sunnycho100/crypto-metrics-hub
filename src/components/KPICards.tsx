@@ -8,7 +8,7 @@ export const KPICards: React.FC = () => {
   const [stats, setStats] = useState<ProductStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [historicalVolumes, setHistoricalVolumes] = useState<number[]>([]);
-  const [useMovingAverage, setUseMovingAverage] = useState(false);
+  const [useMovingAverage, setUseMovingAverage] = useState(false); // Default to daily volume
 
   // Calculate 3-day moving average from historical volumes
   const calculateMovingAverage = (volumes: number[], days: number = 3): number => {
@@ -38,7 +38,7 @@ export const KPICards: React.FC = () => {
           
           if (mounted) {
             setHistoricalVolumes(volumes);
-            setUseMovingAverage(volumes.length >= 3); // Use MA if we have enough data
+            // Don't auto-enable MA, keep it as user preference
           }
         } catch (volumeError) {
           console.warn('Failed to fetch historical volume data, falling back to 30-day average:', volumeError);
@@ -84,26 +84,30 @@ export const KPICards: React.FC = () => {
     };
   };
 
-  // Calculate volume change (using 3-day moving average or 30day as fallback)
+  // Calculate volume change (using yesterday's volume in daily mode or 3-day MA)
   const calculateVolumeChange = (): { change: string; changeType: 'positive' | 'negative' } => {
     if (!stats) return { change: '0.00%', changeType: 'positive' as const };
     
     const volume24h = parseFloat(stats.volume);
-    let avgDailyVolume: number;
+    let comparisonVolume: number;
     
     if (useMovingAverage && historicalVolumes.length >= 3) {
       // Use 3-day moving average for smoother comparison
-      avgDailyVolume = calculateMovingAverage(historicalVolumes, 3);
-      console.log('📊 Using 3-day moving average:', avgDailyVolume.toFixed(2), 'BTC');
+      comparisonVolume = calculateMovingAverage(historicalVolumes, 3);
+      console.log('📊 Using 3-day moving average:', comparisonVolume.toFixed(2), 'BTC');
+    } else if (historicalVolumes.length >= 1) {
+      // Use yesterday's volume for daily comparison
+      comparisonVolume = historicalVolumes[historicalVolumes.length - 1];
+      console.log('📊 Using yesterday\'s volume:', comparisonVolume.toFixed(2), 'BTC');
     } else {
-      // Fallback to 30-day average
+      // Fallback to 30-day average if no historical data
       const volume30day = parseFloat(stats.volume_30day);
-      avgDailyVolume = volume30day / 30;
-      console.log('📊 Using 30-day average:', avgDailyVolume.toFixed(2), 'BTC (fallback)');
+      comparisonVolume = volume30day / 30;
+      console.log('📊 Using 30-day average:', comparisonVolume.toFixed(2), 'BTC (fallback)');
     }
     
-    const changePercent = ((volume24h - avgDailyVolume) / avgDailyVolume) * 100;
-    console.log('📈 Volume change calculation:', volume24h.toFixed(2), 'vs', avgDailyVolume.toFixed(2), '=', changePercent.toFixed(2) + '%');
+    const changePercent = ((volume24h - comparisonVolume) / comparisonVolume) * 100;
+    console.log('📈 Volume change calculation:', volume24h.toFixed(2), 'vs', comparisonVolume.toFixed(2), '=', changePercent.toFixed(2) + '%');
     
     return {
       change: `${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%`,
@@ -171,50 +175,92 @@ export const KPICards: React.FC = () => {
       iconColor: 'text-purple-500',
       modalTitle: 'Volume Analytics',
       modalContent: stats ? (
-        <>
-          <ModalRow label="24h Volume" value={formatVolume(stats.volume)} />
-          <ModalRow label="30d Volume" value={formatVolume(stats.volume_30day)} />
-          {useMovingAverage && historicalVolumes.length >= 3 ? (
-            <>
-              <ModalRow 
-                label="3-day Moving Avg" 
-                value={formatVolume(calculateMovingAverage(historicalVolumes, 3).toString())} 
-              />
-              <ModalRow 
-                label="vs 3-day MA" 
-                value={volumeChange.change}
-                valueColor={volumeChange.changeType === 'positive' ? 'success' : 'danger'} 
-              />
-              <ModalRow 
-                label="Analysis Method" 
-                value="3-day Moving Average (smoother)" 
-                valueColor="info"
-              />
-            </>
-          ) : (
-            <>
-              <ModalRow 
-                label="Avg Daily Volume" 
-                value={formatVolume((parseFloat(stats.volume_30day) / 30).toString())} 
-              />
-              <ModalRow 
-                label="vs 30-day Avg" 
-                value={volumeChange.change}
-                valueColor={volumeChange.changeType === 'positive' ? 'success' : 'danger'} 
-              />
-              <ModalRow 
-                label="Analysis Method" 
-                value="30-day Average (fallback)" 
-                valueColor="warning"
-              />
-            </>
+        <div className="relative">
+          <div className="space-y-0">
+            <ModalRow label="24h Volume" value={formatVolume(stats.volume)} />
+            <ModalRow label="30d Volume" value={formatVolume(stats.volume_30day)} />
+            {useMovingAverage && historicalVolumes.length >= 3 ? (
+              <>
+                <ModalRow 
+                  label="3-day Moving Avg" 
+                  value={formatVolume(calculateMovingAverage(historicalVolumes, 3).toString())} 
+                />
+                <ModalRow 
+                  label="vs 3-day MA" 
+                  value={volumeChange.change}
+                  valueColor={volumeChange.changeType === 'positive' ? 'success' : 'danger'} 
+                />
+                <ModalRow 
+                  label="Analysis Method" 
+                  value="3-day Moving Average (smoother)" 
+                  valueColor="info"
+                />
+              </>
+            ) : (
+              <>
+                {historicalVolumes.length >= 1 ? (
+                  <>
+                    <ModalRow 
+                      label="Yesterday's Volume" 
+                      value={formatVolume(historicalVolumes[historicalVolumes.length - 1].toString())} 
+                    />
+                    <ModalRow 
+                      label="vs Yesterday" 
+                      value={volumeChange.change}
+                      valueColor={volumeChange.changeType === 'positive' ? 'success' : 'danger'} 
+                    />
+                  </>
+                ) : (
+                  <>
+                    <ModalRow 
+                      label="Avg Daily Volume" 
+                      value={formatVolume((parseFloat(stats.volume_30day) / 30).toString())} 
+                    />
+                    <ModalRow 
+                      label="vs 30-day Avg" 
+                      value={volumeChange.change}
+                      valueColor={volumeChange.changeType === 'positive' ? 'success' : 'danger'} 
+                    />
+                  </>
+                )}
+                <ModalRow 
+                  label="Analysis Method" 
+                  value={historicalVolumes.length >= 1 ? "Daily Comparison" : "30-day Average (fallback)"} 
+                  valueColor="info"
+                />
+              </>
+            )}
+            <ModalRow 
+              label="Note" 
+              value={
+                useMovingAverage 
+                  ? "Using 3-day MA to reduce volatility" 
+                  : historicalVolumes.length >= 1 
+                    ? "Day-over-day volume change" 
+                    : "Historical data unavailable"
+              }
+              valueColor="neutral"
+            />
+          </div>
+          
+          {/* Toggle button at bottom right */}
+          {historicalVolumes.length >= 3 && (
+            <div className="flex justify-end mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setUseMovingAverage(!useMovingAverage);
+                }}
+                className="flex items-center gap-2 px-3 py-2 text-xs font-medium rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
+              >
+                <span className="material-symbols-outlined text-sm">
+                  {useMovingAverage ? 'show_chart' : 'timeline'}
+                </span>
+                {useMovingAverage ? 'Daily Mode' : '3-Day MA'}
+              </button>
+            </div>
           )}
-          <ModalRow 
-            label="Note" 
-            value={useMovingAverage ? "Using 3-day MA to reduce volatility" : "Historical data unavailable"}
-            valueColor="neutral"
-          />
-        </>
+        </div>
       ) : (
         <ModalRow label="Status" value="Loading..." />
       )

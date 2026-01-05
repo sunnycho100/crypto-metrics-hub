@@ -6,6 +6,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.4.1] - 2026-01-06
+
+### Changed - Volume Comparison Mode
+- **Daily Volume Default** - Changed 24h volume to compare against yesterday's volume (day-over-day) instead of 3-day moving average
+- **Toggle Option** - Added button in volume modal to switch between Daily Mode and 3-Day MA Mode
+- **Dynamic Comparison** - Volume modal now shows "Yesterday's Volume" in daily mode and "3-day Moving Avg" in MA mode
+
+---
+
 ## [1.4.0] - 2026-01-04
 
 ### Enhanced - Volume Analysis 📊
