@@ -2,13 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { ModalCard, ModalRow } from './ModalCard';
 import { MetricCard } from './Card';
 import { fetchBTCStats, fetchBTCCandles } from '../services/coinbase';
-import type { ProductStats, Candle } from '../types/coinbase';
+import { fetchMarketCap, fetchOpenInterest } from '../services/cryptoquant';
+import type { ProductStats } from '../types/coinbase';
 
 export const KPICards: React.FC = () => {
   const [stats, setStats] = useState<ProductStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [historicalVolumes, setHistoricalVolumes] = useState<number[]>([]);
   const [useMovingAverage, setUseMovingAverage] = useState(false); // Default to daily volume
+  const [marketCap, setMarketCap] = useState<number | null>(null);
+  const [realizedCap, setRealizedCap] = useState<number | null>(null);
+  const [marketCapChange, setMarketCapChange] = useState<{ change: string; changeType: 'positive' | 'negative' }>({ change: '—', changeType: 'positive' });
+  const [openInterest, setOpenInterest] = useState<number | null>(null);
+  const [openInterestChange, setOpenInterestChange] = useState<{ change: string; changeType: 'positive' | 'negative' }>({ change: '—', changeType: 'positive' });
+
+  const hasCryptoQuantKey = Boolean(import.meta.env.VITE_CRYPTOQUANT_API_KEY);
 
   // Calculate 3-day moving average from historical volumes
   const calculateMovingAverage = (volumes: number[], days: number = 3): number => {
@@ -63,6 +71,55 @@ export const KPICards: React.FC = () => {
 
     // Refresh every 30 seconds
     const interval = setInterval(fetchData, 30000);
+
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchOnchainKPIs = async () => {
+      try {
+        const [marketCapResponse, openInterestResponse] = await Promise.all([
+          fetchMarketCap('day', 2),
+          fetchOpenInterest('day', 2, 'all_exchange')
+        ]);
+
+        if (mounted && marketCapResponse?.result?.data?.length) {
+          const mcData = marketCapResponse.result.data;
+          const latest = mcData[mcData.length - 1];
+          const previous = mcData[mcData.length - 2];
+
+          setMarketCap(latest?.market_cap ?? null);
+          setRealizedCap(latest?.realized_cap ?? null);
+          setMarketCapChange(calculateChangePercent(latest?.market_cap, previous?.market_cap));
+        }
+
+        if (mounted && openInterestResponse?.result?.data?.length) {
+          const oiData = openInterestResponse.result.data;
+          const latest = oiData[oiData.length - 1];
+          const previous = oiData[oiData.length - 2];
+
+          setOpenInterest(latest?.open_interest ?? null);
+          setOpenInterestChange(calculateChangePercent(latest?.open_interest, previous?.open_interest));
+        }
+      } catch (error) {
+        console.error('Error fetching CryptoQuant KPI data:', error);
+        if (mounted) {
+          setMarketCap(null);
+          setRealizedCap(null);
+          setMarketCapChange({ change: '—', changeType: 'positive' });
+          setOpenInterest(null);
+          setOpenInterestChange({ change: '—', changeType: 'positive' });
+        }
+      }
+    };
+
+    fetchOnchainKPIs();
+    const interval = setInterval(fetchOnchainKPIs, 300000); // Refresh every 5 minutes
 
     return () => {
       mounted = false;
@@ -132,6 +189,26 @@ export const KPICards: React.FC = () => {
       return `${(vol / 1000).toFixed(2)}K BTC`;
     }
     return `${vol.toFixed(2)} BTC`;
+  };
+
+  const formatLargeFiat = (value: number | null) => {
+    if (value === null || Number.isNaN(value)) return 'Unavailable';
+    if (value >= 1_000_000_000_000) return `$${(value / 1_000_000_000_000).toFixed(2)}T`;
+    if (value >= 1_000_000_000) return `$${(value / 1_000_000_000).toFixed(2)}B`;
+    if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(2)}M`;
+    if (value >= 1_000) return `$${(value / 1_000).toFixed(2)}K`;
+    return `$${value.toFixed(2)}`;
+  };
+
+  const calculateChangePercent = (latest?: number | null, previous?: number | null) => {
+    if (latest === null || previous === null || latest === undefined || previous === undefined || previous === 0) {
+      return { change: '—', changeType: 'positive' as const };
+    }
+    const changePercent = ((latest - previous) / previous) * 100;
+    return {
+      change: `${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%`,
+      changeType: changePercent >= 0 ? 'positive' : 'negative' as const
+    };
   };
 
   const priceChange = calculatePriceChange();
@@ -268,38 +345,47 @@ export const KPICards: React.FC = () => {
     {
       id: 'mcap',
       title: 'Market Cap',
-      value: '$1.24T',
-      change: '+1.8%',
-      changeType: 'positive' as const,
+      value: marketCap !== null ? formatLargeFiat(marketCap) : 'Loading...',
+      change: marketCapChange.change,
+      changeType: marketCapChange.changeType,
       icon: 'pie_chart',
       iconBgColor: 'bg-blue-500/10',
       iconColor: 'text-blue-500',
-      modalTitle: 'Market Dominance',
+      modalTitle: 'Market Capitalization',
       modalContent: (
         <>
-          <ModalRow label="BTC Dominance" value="54.2%" />
-          <ModalRow label="FDV" value="$1.35T" />
-          <ModalRow label="Circulating Supply" value="19.7M BTC" />
-          <ModalRow label="Data Source" value="Mock Data" valueColor="warning" />
+          <ModalRow label="Market Cap" value={formatLargeFiat(marketCap)} />
+          <ModalRow label="Realized Cap" value={formatLargeFiat(realizedCap)} />
+          <ModalRow 
+            label="24h Change" 
+            value={marketCapChange.change}
+            valueColor={marketCapChange.changeType === 'positive' ? 'success' : 'danger'}
+          />
+          <ModalRow label="Window" value="1d (latest close)" valueColor="info" />
+          <ModalRow label="Data Source" value={hasCryptoQuantKey ? 'CryptoQuant API' : 'CryptoQuant demo'} valueColor={hasCryptoQuantKey ? 'success' : 'warning'} />
         </>
       )
     },
     {
       id: 'oi',
       title: 'Open Interest',
-      value: '$14.8B',
-      change: '+4.2%',
-      changeType: 'positive' as const,
+      value: openInterest !== null ? formatLargeFiat(openInterest) : 'Loading...',
+      change: openInterestChange.change,
+      changeType: openInterestChange.changeType,
       icon: 'candlestick_chart',
       iconBgColor: 'bg-orange-500/10',
       iconColor: 'text-orange-500',
-      modalTitle: 'Derivatives Data',
+      modalTitle: 'Derivatives Open Interest',
       modalContent: (
         <>
-          <ModalRow label="Long/Short Ratio" value="1.04" valueColor="success" />
-          <ModalRow label="Top Exchange" value="Binance ($4.2B)" />
-          <ModalRow label="1h Change" value="+0.5%" valueColor="success" />
-          <ModalRow label="Data Source" value="Mock Data" valueColor="warning" />
+          <ModalRow label="Open Interest (all exchanges)" value={formatLargeFiat(openInterest)} />
+          <ModalRow 
+            label="24h Change" 
+            value={openInterestChange.change} 
+            valueColor={openInterestChange.changeType === 'positive' ? 'success' : 'danger'}
+          />
+          <ModalRow label="Window" value="1d (latest close)" valueColor="info" />
+          <ModalRow label="Data Source" value={hasCryptoQuantKey ? 'CryptoQuant API' : 'CryptoQuant demo'} valueColor={hasCryptoQuantKey ? 'success' : 'warning'} />
         </>
       )
     }

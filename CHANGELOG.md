@@ -6,6 +6,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.5.3] - 2026-01-09
+
+### Added - Market Cap & Open Interest (CryptoQuant)
+- Wired Market Cap and Open Interest KPI cards to live CryptoQuant endpoints with 5-minute refresh
+- Show 24h change indicators plus detail modals with realized cap, window, and data source context
+- Preserve demo mode fallback when no CryptoQuant API key is configured
+
+---
+
 ## [1.5.2] - 2026-01-09
 
 ### Added - Active Addresses & Hashrate (CryptoQuant)

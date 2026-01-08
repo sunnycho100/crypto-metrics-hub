@@ -33,6 +33,12 @@ export interface CapitalizationData {
   realized_cap: number | null;
 }
 
+export interface MarketCapData {
+  date: string;
+  market_cap: number | null;
+  realized_cap?: number | null;
+}
+
 export interface ActiveAddressesData {
   date: string;
   addresses_count_active: number | null;
@@ -41,6 +47,11 @@ export interface ActiveAddressesData {
 export interface HashrateData {
   date: string;
   hashrate: number | null;
+}
+
+export interface OpenInterestData {
+  date: string;
+  open_interest: number | null;
 }
 
 /**
@@ -148,6 +159,77 @@ export async function fetchCapitalization(
   const response = await fetch(url, {
     headers: {
       'Authorization': `Bearer ${API_KEY}`
+    }
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(`CryptoQuant API Error (${response.status}): ${JSON.stringify(errorData)}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Fetches market capitalization (market_cap, realized_cap) from CryptoQuant
+ * Endpoint: /btc/market-data/capitalization
+ */
+export async function fetchMarketCap(
+  window: 'day' | 'block' = 'day',
+  limit: number = 2
+): Promise<any> {
+  if (!API_KEY) {
+    console.warn('CryptoQuant API key not configured. Using demo mode.');
+    return {
+      status: { code: 200, message: 'success' },
+      result: {
+        window,
+        data: generateMockMarketCapData(limit)
+      }
+    };
+  }
+
+  const url = `${BASE_URL}/btc/market-data/capitalization?window=${window}&limit=${limit}`;
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${API_KEY}`
+    }
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(`CryptoQuant API Error (${response.status}): ${JSON.stringify(errorData)}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Fetches Open Interest in USD from CryptoQuant
+ * Endpoint: /btc/market-data/open-interest
+ */
+export async function fetchOpenInterest(
+  window: 'day' | 'hour' = 'day',
+  limit: number = 2,
+  exchange: string = 'all_exchange'
+): Promise<any> {
+  if (!API_KEY) {
+    console.warn('CryptoQuant API key not configured. Using demo mode.');
+    return {
+      status: { code: 200, message: 'success' },
+      result: {
+        window,
+        data: generateMockOpenInterestData(limit)
+      }
+    };
+  }
+
+  const url = `${BASE_URL}/btc/market-data/open-interest?window=${window}&limit=${limit}&exchange=${exchange}`;
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${API_KEY}`
     }
   });
 
@@ -304,6 +386,50 @@ function generateMockCapitalizationData(limit: number): CapitalizationData[] {
     });
   }
   
+  return data;
+}
+
+function generateMockMarketCapData(limit: number): MarketCapData[] {
+  const data: MarketCapData[] = [];
+  const today = new Date();
+
+  for (let i = limit - 1; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+
+    const baseMc = 1.24e12; // $1.24T
+    const variation = Math.sin(i / 8) * 5e10 + (Math.random() - 0.5) * 2e10;
+    const market_cap = Math.max(8e11, baseMc + variation);
+    const realized_cap = market_cap * 0.55;
+
+    data.push({
+      date: date.toISOString().split('T')[0],
+      market_cap,
+      realized_cap
+    });
+  }
+
+  return data;
+}
+
+function generateMockOpenInterestData(limit: number): OpenInterestData[] {
+  const data: OpenInterestData[] = [];
+  const today = new Date();
+
+  for (let i = limit - 1; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+
+    const baseOi = 14.8e9;
+    const variation = Math.sin(i / 6) * 6e8 + (Math.random() - 0.5) * 4e8;
+    const open_interest = Math.max(8e9, baseOi + variation);
+
+    data.push({
+      date: date.toISOString().split('T')[0],
+      open_interest
+    });
+  }
+
   return data;
 }
 
