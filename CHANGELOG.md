@@ -15,6 +15,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.5.4] - 2026-01-09
+
+### Added - Developer Mode Login
+- Added environment-gated developer login (defaults to 1111 / 1111 from server .env) that issues a developer-mode session
+- Login modal accepts dev ID/password path while keeping registration email validation
+- Server `/me` endpoint now returns the dev user when in developer mode
+
+---
+
 ## [1.5.2] - 2026-01-09
 
 ### Added - Active Addresses & Hashrate (CryptoQuant)

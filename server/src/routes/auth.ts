@@ -8,6 +8,16 @@ const router = express.Router();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+const DEV_LOGIN_ID = process.env.DEV_LOGIN_ID || '';
+const DEV_LOGIN_PASSWORD = process.env.DEV_LOGIN_PASSWORD || '';
+
+const DEV_USER = {
+  id: 'developer-mode',
+  email: 'developer@local',
+  name: 'Developer Mode',
+  createdAt: new Date(0).toISOString(),
+  isDeveloper: true,
+};
 
 // Register new user
 router.post('/register', async (req, res) => {
@@ -64,7 +74,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Login user
+// Login user (includes developer mode shortcut)
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -72,6 +82,19 @@ router.post('/login', async (req, res) => {
     // Validation
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    // Developer mode bypass using env-configured credentials
+    if (DEV_LOGIN_ID && DEV_LOGIN_PASSWORD && email === DEV_LOGIN_ID && password === DEV_LOGIN_PASSWORD) {
+      const token = jwt.sign({ userId: DEV_USER.id, isDeveloper: true, mode: 'developer' }, JWT_SECRET, {
+        expiresIn: JWT_EXPIRES_IN,
+      });
+
+      return res.json({
+        message: 'Developer login successful',
+        user: DEV_USER,
+        token,
+      });
     }
 
     // Find user
@@ -113,7 +136,11 @@ router.get('/me', async (req, res) => {
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; isDeveloper?: boolean; mode?: string };
+
+    if (decoded.isDeveloper || decoded.mode === 'developer') {
+      return res.json({ user: DEV_USER });
+    }
 
     const user = await findUserById(decoded.userId);
     if (!user) {

@@ -23,6 +23,12 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     setIsLoading(true);
 
     try {
+      if (mode === 'register' && !email.includes('@')) {
+        setError('Please enter a valid email address');
+        setIsLoading(false);
+        return;
+      }
+
       if (mode === 'login') {
         await login(email, password);
       } else {
@@ -114,15 +120,15 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-slate-900 dark:text-white">
-              Email
+              Email or Developer ID
             </label>
             <div className="flex items-center gap-2 rounded-lg bg-slate-100 dark:bg-[#202933] border border-slate-200 dark:border-[#3b4754] px-3 h-11 focus-within:ring-2 focus-within:ring-primary/50 focus-within:border-primary transition-all">
               <span className="material-symbols-outlined text-text-secondary">mail</span>
               <input
-                type="email"
+                type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                placeholder="you@example.com or 1111 (dev)"
                 required
                 className="flex-1 bg-transparent border-none focus:ring-0 focus:outline-none text-sm text-slate-900 dark:text-white placeholder:text-text-secondary"
               />
@@ -141,7 +147,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={mode === 'register' ? 'At least 6 characters' : '••••••••'}
                 required
-                minLength={6}
+                minLength={mode === 'register' ? 6 : undefined}
                 className="flex-1 bg-transparent border-none focus:ring-0 focus:outline-none text-sm text-slate-900 dark:text-white placeholder:text-text-secondary"
               />
             </div>
