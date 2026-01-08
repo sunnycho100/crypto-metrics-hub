@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface CardProps {
   children: React.ReactNode;
@@ -80,6 +80,7 @@ interface SmallMetricCardProps {
   changeType?: 'positive' | 'neutral';
   barData: number[];
   barColor: string;
+  infoText?: string;
 }
 
 export const SmallMetricCard: React.FC<SmallMetricCardProps> = ({
@@ -88,13 +89,30 @@ export const SmallMetricCard: React.FC<SmallMetricCardProps> = ({
   change,
   changeType = 'positive',
   barData,
-  barColor
+  barColor,
+  infoText
 }) => {
+  const [showInfo, setShowInfo] = useState(false);
+
   return (
-    <div className="h-full flex flex-col gap-3 rounded-2xl bg-gradient-to-br from-white to-slate-50 dark:from-[#2e3742] dark:to-[#222931] p-5 shadow-[0_4px_0_0_rgba(203,213,225,1)] dark:shadow-[0_4px_0_0_rgba(17,20,24,0.5)] border-t border-l border-white/60 dark:border-white/10 active:translate-y-1 active:shadow-none transition-all duration-150 ease-out hover:brightness-105">
+    <div className="relative h-full flex flex-col gap-3 rounded-2xl bg-gradient-to-br from-white to-slate-50 dark:from-[#2e3742] dark:to-[#222931] p-5 shadow-[0_4px_0_0_rgba(203,213,225,1)] dark:shadow-[0_4px_0_0_rgba(17,20,24,0.5)] border-t border-l border-white/60 dark:border-white/10 active:translate-y-1 active:shadow-none transition-all duration-150 ease-out hover:brightness-105">
       <div className="flex justify-between items-center">
         <p className="text-text-secondary text-sm font-bold uppercase tracking-wider">{title}</p>
-        <span className="material-symbols-outlined text-text-secondary text-lg">info</span>
+        {infoText ? (
+          <button
+            type="button"
+            aria-label={`About ${title}`}
+            className="h-8 w-8 flex items-center justify-center rounded-full text-text-secondary hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowInfo((prev) => !prev);
+            }}
+          >
+            <span className="material-symbols-outlined text-lg">help</span>
+          </button>
+        ) : (
+          <span className="material-symbols-outlined text-text-secondary text-lg">info</span>
+        )}
       </div>
       <div className="flex items-end gap-2">
         <p className="text-slate-900 dark:text-white text-2xl font-black">{value}</p>
@@ -117,6 +135,25 @@ export const SmallMetricCard: React.FC<SmallMetricCardProps> = ({
           />
         ))}
       </div>
+
+      {infoText && showInfo && (
+        <div className="absolute top-3 right-3 z-10 max-w-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg p-3 text-sm text-slate-700 dark:text-slate-200">
+          <div className="flex justify-between items-start gap-2">
+            <p>{infoText}</p>
+            <button
+              type="button"
+              aria-label="Close info"
+              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-100"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowInfo(false);
+              }}
+            >
+              <span className="material-symbols-outlined text-base">close</span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

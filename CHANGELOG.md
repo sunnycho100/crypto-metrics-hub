@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.5.1] - 2026-01-09
+
+### Added - MVRV Help Tooltip
+- Added in-card help popover on the MVRV Ratio card with CryptoQuant-sourced definition
+- Made the info button togglable and dismissible for concise in-context guidance
+
+---
+
 ## [1.5.0] - 2026-01-08
 
 ### Added - CryptoQuant MVRV Integration 🎯

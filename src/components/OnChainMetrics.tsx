@@ -103,6 +103,8 @@ export const OnChainMetrics: React.FC = () => {
       value: mvrvMetrics.currentMVRV,
       change: isLoading ? 'Loading...' : mvrvMetrics.change,
       changeType: mvrvMetrics.changeType,
+      infoText:
+        'MVRV (Market-Value-to-Realized-Value) is market cap divided by realized cap. When it is high, BTC can be overvalued; when low, it can signal undervaluation (source: CryptoQuant).',
       barData: [40, 60, 30, 70, 50],
       barColor: 'bg-primary',
       modalTitle: 'On-Chain Valuation',
@@ -166,6 +168,7 @@ export const OnChainMetrics: React.FC = () => {
             changeType={metric.changeType}
             barData={metric.barData}
             barColor={metric.barColor}
+            infoText={metric.infoText}
           />
         </ModalCard>
       ))}
