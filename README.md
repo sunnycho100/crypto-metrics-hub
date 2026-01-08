@@ -61,7 +61,7 @@ The following components display mock data and need API integrations:
 |-----------|----------------|--------------|----------------------|
 | **Market Cap KPI Card** | 📊 Mock Data | CoinGecko/CoinMarketCap | Free tier available, no auth required |
 | **Open Interest KPI Card** | 📊 Mock Data | Deribit/Binance Futures | May require API key for higher limits |
-| **MVRV Ratio** | 📊 Mock Data | Glassnode/CryptoQuant | Paid API, premium metrics |
+| **MVRV Ratio** | ✅ **LIVE** | CryptoQuant | **Now integrated!** Free tier available, see [CRYPTOQUANT_INTEGRATION.md](CRYPTOQUANT_INTEGRATION.md) |
 | **Active Addresses** | 📊 Mock Data | Glassnode/CryptoQuant | Paid API, on-chain metrics |
 | **Hash Rate** | 📊 Mock Data | Blockchain.com/Glassnode | Some endpoints free |
 

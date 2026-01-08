@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.5.0] - 2026-01-08
+
+### Added - CryptoQuant MVRV Integration 🎯
+- **Live MVRV Data** - Integrated CryptoQuant API for real-time MVRV (Market-Value-to-Realized-Value) ratio
+- **On-Chain Metrics** - Added Z-Score calculation, Realized Price, and STH MVRV metrics
+- **Auto-refresh** - MVRV data updates automatically every 5 minutes
+- **Demo Mode** - Works without API key using realistic mock data
+- **Environment Config** - Added `VITE_CRYPTOQUANT_API_KEY` to .env.example
+
+### Technical
+- Created `src/services/cryptoquant.ts` service with MVRV, Realized Price, and Capitalization endpoints
+- Updated `OnChainMetrics.tsx` component to fetch and display live data
+- Added comprehensive documentation in CRYPTOQUANT_INTEGRATION.md
+
+---
+
 ## [1.4.3] - 2026-01-06
 
 ### Fixed - News API Integration
