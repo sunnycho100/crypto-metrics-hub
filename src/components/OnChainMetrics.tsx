@@ -4,9 +4,9 @@ import { SmallMetricCard } from './Card';
 import { 
   fetchMVRV, 
   fetchRealizedPrice, 
-  fetchCapitalization,
-  calculateMVRVZScore,
-  formatLargeNumber 
+  fetchActiveAddresses,
+  fetchHashrate,
+  calculateMVRVZScore
 } from '../services/cryptoquant';
 
 interface MVRVMetrics {
@@ -16,6 +16,12 @@ interface MVRVMetrics {
   sthMVRV: string;
   changeType: 'positive' | 'negative' | 'neutral';
   change: string;
+}
+
+interface SimpleMetricState {
+  value: string;
+  change: string;
+  changeType: 'positive' | 'negative' | 'neutral';
 }
 
 export const OnChainMetrics: React.FC = () => {
@@ -28,6 +34,23 @@ export const OnChainMetrics: React.FC = () => {
     change: 'Loading...'
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [activeMetrics, setActiveMetrics] = useState<SimpleMetricState>({
+    value: '—',
+    change: 'Loading...',
+    changeType: 'neutral'
+  });
+  const [hashMetrics, setHashMetrics] = useState<SimpleMetricState>({
+    value: '—',
+    change: 'Loading...',
+    changeType: 'neutral'
+  });
+  const [isLoadingNetwork, setIsLoadingNetwork] = useState(true);
+
+  const formatNumberShort = (value: number) => {
+    if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
+    if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`;
+    return value.toLocaleString();
+  };
 
   useEffect(() => {
     const loadMVRVData = async () => {
@@ -96,6 +119,83 @@ export const OnChainMetrics: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const loadNetworkData = async () => {
+      try {
+        setIsLoadingNetwork(true);
+
+        const [activeRes, hashRes] = await Promise.all([
+          fetchActiveAddresses('day', 2),
+          fetchHashrate('day', 2)
+        ]);
+
+        // Active Addresses
+        const activeData = activeRes?.result?.data || [];
+        const latestActive = activeData[activeData.length - 1]?.addresses_count_active;
+        const prevActive = activeData[activeData.length - 2]?.addresses_count_active;
+
+        if (latestActive != null) {
+          let changeType: 'positive' | 'negative' | 'neutral' = 'neutral';
+          let change = 'Neutral';
+
+          if (prevActive != null && prevActive !== 0) {
+            const delta = ((latestActive - prevActive) / prevActive) * 100;
+            if (delta > 0) {
+              changeType = 'positive';
+              change = `↑ ${delta.toFixed(2)}%`;
+            } else if (delta < 0) {
+              changeType = 'negative';
+              change = `↓ ${Math.abs(delta).toFixed(2)}%`;
+            }
+          }
+
+          setActiveMetrics({
+            value: formatNumberShort(latestActive),
+            change,
+            changeType
+          });
+        }
+
+        // Hashrate
+        const hashData = hashRes?.result?.data || [];
+        const latestHash = hashData[hashData.length - 1]?.hashrate;
+        const prevHash = hashData[hashData.length - 2]?.hashrate;
+
+        if (latestHash != null) {
+          const latestEh = latestHash / 1e18;
+
+          let changeType: 'positive' | 'negative' | 'neutral' = 'neutral';
+          let change = 'Neutral';
+
+          if (prevHash != null && prevHash !== 0) {
+            const delta = ((latestHash - prevHash) / prevHash) * 100;
+            if (delta > 0) {
+              changeType = 'positive';
+              change = `↑ ${delta.toFixed(2)}%`;
+            } else if (delta < 0) {
+              changeType = 'negative';
+              change = `↓ ${Math.abs(delta).toFixed(2)}%`;
+            }
+          }
+
+          setHashMetrics({
+            value: `${latestEh.toFixed(2)} EH/s`,
+            change,
+            changeType
+          });
+        }
+      } catch (error) {
+        console.error('Error loading network metrics:', error);
+      } finally {
+        setIsLoadingNetwork(false);
+      }
+    };
+
+    loadNetworkData();
+    const interval = setInterval(loadNetworkData, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const metricsData = [
     {
       id: 'mvrv',
@@ -118,35 +218,47 @@ export const OnChainMetrics: React.FC = () => {
     },
     {
       id: 'active',
-      title: 'Active Addresses (IN PROGRESS)',
-      value: '892K',
-      change: '↑ 5%',
-      changeType: 'positive' as const,
+      title: 'Active Addresses',
+      value: isLoadingNetwork ? 'Loading...' : activeMetrics.value,
+      change: isLoadingNetwork ? 'Loading...' : activeMetrics.change,
+      changeType: activeMetrics.changeType,
+      infoText:
+        'Active Addresses is the total number of unique addresses that were active as a sender or receiver during the window (source: CryptoQuant).',
       barData: [20, 30, 25, 45, 60],
       barColor: 'bg-success',
       modalTitle: 'Network Activity',
       modalContent: (
         <>
-          <ModalRow label="New Addresses" value="340K" />
-          <ModalRow label="Zero Balance" value="45M" />
-          <ModalRow label="Tx Count (24h)" value="450K" valueColor="success" />
+          <ModalRow label="Active Addresses" value={isLoadingNetwork ? 'Loading...' : activeMetrics.value} />
+          <ModalRow
+            label="24h Change"
+            value={isLoadingNetwork ? 'Loading...' : activeMetrics.change}
+            valueColor={activeMetrics.changeType === 'negative' ? 'danger' : activeMetrics.changeType === 'positive' ? 'success' : 'neutral'}
+          />
+          <ModalRow label="Source" value="CryptoQuant" valueColor="info" />
         </>
       )
     },
     {
       id: 'hash',
-      title: 'Hash Rate (IN PROGRESS)',
-      value: '580 EH/s',
-      change: '↑ 1%',
-      changeType: 'positive' as const,
+      title: 'Hash Rate',
+      value: isLoadingNetwork ? 'Loading...' : hashMetrics.value,
+      change: isLoadingNetwork ? 'Loading...' : hashMetrics.change,
+      changeType: hashMetrics.changeType,
+      infoText:
+        'Hashrate is the mean speed at which hash problems are solved across all Bitcoin miners, expressed in hashes per second (source: CryptoQuant).',
       barData: [70, 75, 72, 80, 85],
       barColor: 'bg-purple-500',
       modalTitle: 'Mining Stats',
       modalContent: (
         <>
-          <ModalRow label="Difficulty" value="84.02 T" />
-          <ModalRow label="Next Adjustment" value="+2.1% (Est)" valueColor="success" />
-          <ModalRow label="Miner Rev (24h)" value="$34.2M" />
+          <ModalRow label="Hashrate" value={isLoadingNetwork ? 'Loading...' : hashMetrics.value} />
+          <ModalRow
+            label="24h Change"
+            value={isLoadingNetwork ? 'Loading...' : hashMetrics.change}
+            valueColor={hashMetrics.changeType === 'negative' ? 'danger' : hashMetrics.changeType === 'positive' ? 'success' : 'neutral'}
+          />
+          <ModalRow label="Source" value="CryptoQuant" valueColor="info" />
         </>
       )
     }

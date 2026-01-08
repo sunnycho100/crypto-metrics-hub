@@ -6,6 +6,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.5.2] - 2026-01-09
+
+### Added - Active Addresses & Hashrate (CryptoQuant)
+- Connected Active Addresses and Hashrate cards to live CryptoQuant endpoints with 5-minute refresh
+- Added concise in-card tooltips sourced from CryptoQuant docs for both metrics
+- Show 24h change indicators with positive/negative coloring
+
+---
+
 ## [1.5.1] - 2026-01-09
 
 ### Added - MVRV Help Tooltip

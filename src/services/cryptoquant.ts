@@ -33,6 +33,16 @@ export interface CapitalizationData {
   realized_cap: number | null;
 }
 
+export interface ActiveAddressesData {
+  date: string;
+  addresses_count_active: number | null;
+}
+
+export interface HashrateData {
+  date: string;
+  hashrate: number | null;
+}
+
 /**
  * Fetches MVRV (Market-Value-to-Realized-Value) ratio from CryptoQuant
  * MVRV is a ratio of market_cap divided by realized_cap
@@ -150,6 +160,76 @@ export async function fetchCapitalization(
 }
 
 /**
+ * Fetches active addresses (unique senders/receivers) from CryptoQuant
+ * Endpoint: /btc/network-data/addresses-count
+ */
+export async function fetchActiveAddresses(
+  window: 'day' | 'hour' | 'block' = 'day',
+  limit: number = 2
+): Promise<any> {
+  if (!API_KEY) {
+    console.warn('CryptoQuant API key not configured. Using demo mode.');
+    return {
+      status: { code: 200, message: 'success' },
+      result: {
+        window: window,
+        data: generateMockActiveAddressesData(limit)
+      }
+    };
+  }
+
+  const url = `${BASE_URL}/btc/network-data/addresses-count?window=${window}&limit=${limit}`;
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${API_KEY}`
+    }
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(`CryptoQuant API Error (${response.status}): ${JSON.stringify(errorData)}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Fetches network hashrate from CryptoQuant
+ * Endpoint: /btc/network-data/hashrate
+ */
+export async function fetchHashrate(
+  window: 'day' | 'hour' | 'block' = 'day',
+  limit: number = 2
+): Promise<any> {
+  if (!API_KEY) {
+    console.warn('CryptoQuant API key not configured. Using demo mode.');
+    return {
+      status: { code: 200, message: 'success' },
+      result: {
+        window: window,
+        data: generateMockHashrateData(limit)
+      }
+    };
+  }
+
+  const url = `${BASE_URL}/btc/network-data/hashrate?window=${window}&limit=${limit}`;
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${API_KEY}`
+    }
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(`CryptoQuant API Error (${response.status}): ${JSON.stringify(errorData)}`);
+  }
+
+  return response.json();
+}
+
+/**
  * Calculate MVRV Z-Score
  * Z-Score = (Market Cap - Realized Cap) / Standard Deviation of Market Cap
  * 
@@ -224,6 +304,49 @@ function generateMockCapitalizationData(limit: number): CapitalizationData[] {
     });
   }
   
+  return data;
+}
+
+function generateMockActiveAddressesData(limit: number): ActiveAddressesData[] {
+  const data: ActiveAddressesData[] = [];
+  const today = new Date();
+
+  for (let i = limit - 1; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+
+    const base = 950_000;
+    const variation = Math.sin(i / 7) * 50_000 + (Math.random() - 0.5) * 20_000;
+    const addresses_count_active = Math.max(400_000, Math.round(base + variation));
+
+    data.push({
+      date: date.toISOString().split('T')[0],
+      addresses_count_active
+    });
+  }
+
+  return data;
+}
+
+function generateMockHashrateData(limit: number): HashrateData[] {
+  const data: HashrateData[] = [];
+  const today = new Date();
+
+  for (let i = limit - 1; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+
+    // Hashrate in hashes per second; generate around 520 EH/s
+    const baseEh = 520;
+    const variation = Math.sin(i / 10) * 15 + (Math.random() - 0.5) * 10;
+    const hashrate = Math.max(300, baseEh + variation) * 1e18; // convert to hashes per second
+
+    data.push({
+      date: date.toISOString().split('T')[0],
+      hashrate
+    });
+  }
+
   return data;
 }
 
