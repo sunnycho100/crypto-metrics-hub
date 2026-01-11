@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.6.0] - 2026-01-12
+### Improved
+- Major overhaul of news filtering system for Market Pulse card
+- Added Bitcoin relevance scoring to filter out non-Bitcoin news
+- Enhanced search queries for NewsAPI to focus on Bitcoin context
+- Updated search and exclude terms for more accurate Bitcoin news
+- Improved error handling and fallback mock data
+- News config now reloads automatically every 5 minutes
+- Added debug function for testing news relevance in browser console
+
+---
+
 ## [1.5.3] - 2026-01-09
 
 ### Added - Market Cap & Open Interest (CryptoQuant)
@@ -325,27 +337,3 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - [ ] Data export (CSV, PDF)
 - [ ] Customizable dashboard widgets
 - [ ] Alert notifications (push, email)
-
----
-
-## API Reference
-
-### Coinbase Exchange API (Public)
-| Endpoint | Function | Description |
-|----------|----------|-------------|
-| `/products/btc-usd/candles` | `fetchBTCCandles()` | OHLCV data |
-| `/products/btc-usd/stats` | `fetchBTCStats()` | 24h statistics |
-| `/products/btc-usd/ticker` | `fetchBTCTicker()` | Current price |
-
-### Auth Server API
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/auth/register` | POST | Create new user |
-| `/api/auth/login` | POST | Login user |
-| `/api/auth/me` | GET | Get current user (requires Bearer token) |
-| `/api/auth/logout` | POST | Logout user |
-| `/api/health` | GET | Server health check |
-
----
-
-*This changelog is maintained manually. Last updated: 2026-01-02*

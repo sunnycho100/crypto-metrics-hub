@@ -34,13 +34,13 @@ let newsConfig: CryptoNewsConfig = {
 
 let configLoaded = false;
 let configLoadPromise: Promise<void> | null = null;
+let lastConfigLoad = 0;
+const CONFIG_RELOAD_INTERVAL = 5 * 60 * 1000; // Reload config every 5 minutes
 
 /**
  * Load crypto news search terms from configuration file
  */
 async function loadNewsConfig(): Promise<void> {
-  if (configLoaded) return;
-  
   try {
     const response = await fetch('/crypto-news-terms.json');
     if (response.ok) {
@@ -49,15 +49,17 @@ async function loadNewsConfig(): Promise<void> {
         searchTerms: config.searchTerms || newsConfig.searchTerms,
         excludeTerms: config.excludeTerms || []
       };
-      console.log('✓ Loaded crypto news config:');
-      console.log('  - Search terms:', newsConfig.searchTerms.length, 'terms', newsConfig.searchTerms);
-      console.log('  - Exclude terms:', newsConfig.excludeTerms.length, 'terms', newsConfig.excludeTerms);
+      console.log('✓ Loaded Bitcoin news config:');
+      console.log('  - Search terms:', newsConfig.searchTerms.length, 'terms');
+      console.log('  - Exclude terms:', newsConfig.excludeTerms.length, 'terms');
       configLoaded = true;
+      lastConfigLoad = Date.now();
     }
   } catch (error) {
     console.warn('⚠️ Failed to load crypto-news-terms.json, using defaults:', error);
     console.log('  - Default search terms:', newsConfig.searchTerms);
     configLoaded = true;
+    lastConfigLoad = Date.now();
   }
 }
 
@@ -65,18 +67,26 @@ async function loadNewsConfig(): Promise<void> {
  * Ensure config is loaded before using it
  */
 async function ensureConfigLoaded(): Promise<void> {
-  if (!configLoadPromise) {
+  // Reload config periodically or if never loaded
+  const shouldReload = !configLoaded || (Date.now() - lastConfigLoad > CONFIG_RELOAD_INTERVAL);
+  
+  if (shouldReload || !configLoadPromise) {
     configLoadPromise = loadNewsConfig();
   }
   await configLoadPromise;
 }
 
 /**
- * Build search query from configured terms
+ * Build search query from configured terms with Bitcoin focus
  */
 function buildSearchQuery(): string {
-  // Use OR logic for multiple terms: (Bitcoin OR BTC OR cryptocurrency)
-  return newsConfig.searchTerms.join(' OR ');
+  // Prioritize Bitcoin-specific terms with better logic
+  const bitcoinTerms = ['Bitcoin', 'BTC'];
+  const contextTerms = ['price', 'market', 'ETF', 'mining', 'halving', 'adoption', 'regulation'];
+  
+  // Primary query focuses on Bitcoin with context
+  const primaryQuery = `(Bitcoin OR BTC) AND (${contextTerms.join(' OR ')})`;
+  return primaryQuery;
 }
 
 /**
@@ -89,18 +99,32 @@ async function fetchNewsAPIArticles(): Promise<NewsArticle[]> {
     
     const searchQuery = buildSearchQuery();
     console.log('🔍 NewsAPI search query:', searchQuery);
-    const url = `${NEWS_API_BASE}/everything?q=${encodeURIComponent(searchQuery)}&sortBy=publishedAt&pageSize=10&language=en&apiKey=${NEWS_API_KEY}`;
+    
+    // Skip NewsAPI if using demo key (won't work)
+    if (NEWS_API_KEY === 'demo') {
+      console.log('⚠️ NewsAPI demo key detected, skipping NewsAPI fetch');
+      return [];
+    }
+    
+    const url = `${NEWS_API_BASE}/everything?q=${encodeURIComponent(searchQuery)}&sortBy=publishedAt&pageSize=15&language=en&apiKey=${NEWS_API_KEY}`;
     const response = await fetch(url);
     
     if (!response.ok) {
-      throw new Error(`NewsAPI error: ${response.status}`);
+      const errorText = await response.text();
+      console.warn(`NewsAPI error ${response.status}: ${errorText}`);
+      return [];
     }
     
     const data = await response.json();
     
+    if (data.status === 'error') {
+      console.warn('NewsAPI error:', data.message);
+      return [];
+    }
+    
     console.log(`✓ NewsAPI returned ${data.articles?.length || 0} articles`);
     
-    const articles = data.articles?.slice(0, 5).map((article: any, index: number) => ({
+    const articles = data.articles?.map((article: any, index: number) => ({
       id: `newsapi-${index}-${Date.now()}`,
       title: article.title,
       source: article.source?.name || 'Unknown',
@@ -109,7 +133,14 @@ async function fetchNewsAPIArticles(): Promise<NewsArticle[]> {
       category: categorizeNews(article.title)
     })) || [];
     
-    // Filter out excluded terms
+    // Debug: Log relevance scores
+    console.log('📊 Article relevance scores:');
+    articles.forEach(article => {
+      const score = scoreBitcoinRelevance(article);
+      console.log(`  ${score}/100: ${article.title.slice(0, 60)}...`);
+    });
+    
+    // Filter out excluded terms and low-relevance articles
     const filtered = filterExcludedTerms(articles);
     console.log(`✓ After filtering: ${filtered.length} articles (excluded ${articles.length - filtered.length})`);
     return filtered;
@@ -120,17 +151,68 @@ async function fetchNewsAPIArticles(): Promise<NewsArticle[]> {
 }
 
 /**
- * Filter out articles containing excluded terms
+ * Score article relevance to Bitcoin (0-100)
+ */
+function scoreBitcoinRelevance(article: NewsArticle): number {
+  const title = article.title.toLowerCase();
+  const source = article.source.toLowerCase();
+  let score = 0;
+  
+  // Primary Bitcoin indicators (high weight)
+  if (title.includes('bitcoin') || title.includes('btc')) score += 40;
+  
+  // Bitcoin-specific context terms (medium weight)
+  const bitcoinContext = ['satoshi', 'lightning', 'halving', 'mining', 'wallet', 'node'];
+  bitcoinContext.forEach(term => {
+    if (title.includes(term)) score += 15;
+  });
+  
+  // Market/financial context with Bitcoin (medium weight)
+  if ((title.includes('bitcoin') || title.includes('btc')) && 
+      (title.includes('price') || title.includes('market') || title.includes('etf') || title.includes('trading'))) {
+    score += 20;
+  }
+  
+  // Crypto-focused sources (small boost)
+  const cryptoSources = ['coindesk', 'cointelegraph', 'bitcoinist', 'cryptonews', 'cryptopanic', 'decrypt'];
+  if (cryptoSources.some(s => source.includes(s))) score += 10;
+  
+  // Penalties for non-Bitcoin focus
+  const altcoinTerms = ['ethereum', 'eth', 'altcoin', 'solana', 'cardano', 'polygon', 'avalanche', 'nft'];
+  altcoinTerms.forEach(term => {
+    if (title.includes(term) && !title.includes('bitcoin') && !title.includes('btc')) {
+      score -= 20;
+    }
+  });
+  
+  // Penalty for too generic crypto mentions
+  if (title.includes('cryptocurrency') && !title.includes('bitcoin') && !title.includes('btc')) {
+    score -= 10;
+  }
+  
+  return Math.max(0, Math.min(100, score));
+}
+
+/**
+ * Filter out articles containing excluded terms and low Bitcoin relevance
  */
 function filterExcludedTerms(articles: NewsArticle[]): NewsArticle[] {
-  if (newsConfig.excludeTerms.length === 0) return articles;
-  
-  return articles.filter(article => {
+  const filtered = articles.filter(article => {
     const titleLower = article.title.toLowerCase();
-    return !newsConfig.excludeTerms.some(term => 
+    
+    // Check excluded terms
+    const hasExcludedTerms = newsConfig.excludeTerms.some(term => 
       titleLower.includes(term.toLowerCase())
     );
+    if (hasExcludedTerms) return false;
+    
+    // Check Bitcoin relevance score
+    const relevanceScore = scoreBitcoinRelevance(article);
+    return relevanceScore >= 30; // Minimum relevance threshold
   });
+  
+  // Sort by relevance score (highest first)
+  return filtered.sort((a, b) => scoreBitcoinRelevance(b) - scoreBitcoinRelevance(a));
 }
 
 /**
@@ -138,7 +220,9 @@ function filterExcludedTerms(articles: NewsArticle[]): NewsArticle[] {
  */
 async function fetchCryptoPanicArticles(): Promise<NewsArticle[]> {
   try {
-    const url = `${CRYPTOPANIC_BASE}/posts/?auth_token=${CRYPTOPANIC_KEY}&currencies=BTC&kind=news&filter=hot`;
+    // Use more specific parameters for Bitcoin-focused content
+    const url = `${CRYPTOPANIC_BASE}/posts/?auth_token=${CRYPTOPANIC_KEY}&currencies=BTC&kind=news&filter=hot&regions=en&metadata=true`;
+    console.log('🔍 Fetching from CryptoPanic with BTC focus');
     const response = await fetch(url);
     
     if (!response.ok) {
@@ -202,10 +286,15 @@ function getRelativeTime(timestamp: string): string {
  */
 export async function fetchBitcoinNews(): Promise<NewsArticle[]> {
   try {
-    // Ensure config is loaded first
+    // Ensure config is loaded first (will reload periodically)
     await ensureConfigLoaded();
     
     console.log('📰 Fetching Bitcoin news from multiple sources...');
+    console.log('🎯 Current Bitcoin focus filters:', {
+      searchTerms: newsConfig.searchTerms.slice(0, 5),
+      excludeTerms: newsConfig.excludeTerms,
+      minRelevanceScore: 25
+    });
     
     // Fetch from both sources in parallel
     const [newsApiArticles, cryptoPanicArticles] = await Promise.all([
@@ -219,11 +308,23 @@ export async function fetchBitcoinNews(): Promise<NewsArticle[]> {
     const allArticles = [...cryptoPanicArticles, ...newsApiArticles];
     const uniqueArticles = deduplicateArticles(allArticles);
     
-    console.log(`✓ Total unique articles: ${uniqueArticles.length}`);
+    // Apply final relevance filtering and scoring
+    const relevantArticles = uniqueArticles.filter(article => {
+      const score = scoreBitcoinRelevance(article);
+      console.log(`📈 Final relevance check: ${score}/100 - ${article.title.slice(0, 50)}...`);
+      return score >= 25; // Lower threshold for final selection to allow more variety
+    });
     
-    // Sort by date (newest first) and return top 5
-    const finalArticles = uniqueArticles
-      .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+    console.log(`✓ Total relevant articles after final filtering: ${relevantArticles.length}`);
+    
+    // Sort by relevance score first, then by date
+    const finalArticles = relevantArticles
+      .sort((a, b) => {
+        const scoreA = scoreBitcoinRelevance(a);
+        const scoreB = scoreBitcoinRelevance(b);
+        if (scoreB !== scoreA) return scoreB - scoreA; // Higher score first
+        return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(); // Then newer first
+      })
       .slice(0, 5);
       
     if (finalArticles.length === 0) {
@@ -256,6 +357,26 @@ function deduplicateArticles(articles: NewsArticle[]): NewsArticle[] {
 }
 
 /**
+ * Debug function: Test Bitcoin relevance scoring
+ * Call this in console: window.debugBitcoinNews(['Bitcoin price hits $100k', 'Ethereum update'])
+ */
+export function debugBitcoinRelevance(titles: string[]): void {
+  console.log('🔍 Debug: Testing Bitcoin relevance scoring');
+  titles.forEach(title => {
+    const mockArticle: NewsArticle = {
+      id: 'debug',
+      title,
+      source: 'Test',
+      publishedAt: new Date().toISOString(),
+      url: '#',
+      category: 'news'
+    };
+    const score = scoreBitcoinRelevance(mockArticle);
+    console.log(`${score}/100: ${title}`);
+  });
+}
+
+/**
  * Format article for display
  */
 export function formatNewsArticle(article: NewsArticle) {
@@ -267,33 +388,55 @@ export function formatNewsArticle(article: NewsArticle) {
 }
 
 /**
- * Mock news data for fallback
+ * Mock news data for fallback - Bitcoin focused
  */
 function getMockNews(): NewsArticle[] {
+  const now = Date.now();
   return [
     {
       id: 'mock-1',
-      title: 'Bitcoin ETF sees record inflows as institutional interest grows',
+      title: 'Bitcoin ETF sees record $2.3B inflows as institutional adoption accelerates',
       source: 'Bloomberg',
-      publishedAt: new Date(Date.now() - 600000).toISOString(),
+      publishedAt: new Date(now - 600000).toISOString(),
       url: '#',
       category: 'news'
     },
     {
       id: 'mock-2',
-      title: 'SEC delays decision on Bitcoin ETF options trading',
+      title: 'SEC approves additional Bitcoin ETF options trading amid growing demand',
       source: 'Reuters',
-      publishedAt: new Date(Date.now() - 3600000).toISOString(),
+      publishedAt: new Date(now - 1800000).toISOString(),
       url: '#',
       category: 'regulation'
     },
     {
       id: 'mock-3',
-      title: 'Technical analysis: Bitcoin tests key support at $60,000',
+      title: 'Bitcoin network hash rate reaches new all-time high ahead of 2028 halving',
       source: 'CoinDesk',
-      publishedAt: new Date(Date.now() - 7200000).toISOString(),
+      publishedAt: new Date(now - 3600000).toISOString(),
+      url: '#',
+      category: 'analysis'
+    },
+    {
+      id: 'mock-4',
+      title: 'MicroStrategy acquires additional 15,000 Bitcoin in Q4 treasury update',
+      source: 'Bitcoin Magazine',
+      publishedAt: new Date(now - 5400000).toISOString(),
+      url: '#',
+      category: 'news'
+    },
+    {
+      id: 'mock-5',
+      title: 'Lightning Network capacity surpasses 5,000 BTC milestone',
+      source: 'Decrypt',
+      publishedAt: new Date(now - 7200000).toISOString(),
       url: '#',
       category: 'analysis'
     }
   ];
+}
+
+// Expose debug function globally for console testing
+if (typeof window !== 'undefined') {
+  (window as any).debugBitcoinNews = debugBitcoinRelevance;
 }
