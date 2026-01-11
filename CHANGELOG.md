@@ -4,6 +4,31 @@ All notable changes to the BTC Metrics Hub project will be documented in this fi
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## Example Format
+```
+## [X.Y.Z] - YYYY-MM-DD
+### Category
+- **Brief summary** - Detailed description of the change
+- **Another feature** - What it does and why it matters
+```
+
+**Categories:** Added, Changed, Improved, Fixed, Removed, Deprecated, Security
+
+---
+
+## [1.6.1] - 2026-01-12
+### Added
+- **News pagination** - Arrow navigation to browse through multiple pages of Bitcoin news (5 articles per page)
+- **Smart caching** - News pages are cached to avoid redundant API calls when navigating backward
+
+### Changed
+- **Replaced refresh button with arrows** - Left/right arrows for intuitive news browsing
+- **Increased article pool** - Fetch up to 25 articles from NewsAPI and 10 from CryptoPanic for better variety
+
+### Improved
+- **API flexibility** - News service now supports pagination with limit/offset parameters
+- **Better UX** - Page indicator shows current position, arrows disabled at boundaries
+
 ---
 
 ## [1.6.0] - 2026-01-12

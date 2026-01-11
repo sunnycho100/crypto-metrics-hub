@@ -106,7 +106,7 @@ async function fetchNewsAPIArticles(): Promise<NewsArticle[]> {
       return [];
     }
     
-    const url = `${NEWS_API_BASE}/everything?q=${encodeURIComponent(searchQuery)}&sortBy=publishedAt&pageSize=15&language=en&apiKey=${NEWS_API_KEY}`;
+    const url = `${NEWS_API_BASE}/everything?q=${encodeURIComponent(searchQuery)}&sortBy=publishedAt&pageSize=25&language=en&apiKey=${NEWS_API_KEY}`;
     const response = await fetch(url);
     
     if (!response.ok) {
@@ -231,7 +231,7 @@ async function fetchCryptoPanicArticles(): Promise<NewsArticle[]> {
     
     const data = await response.json();
     
-    return data.results?.slice(0, 3).map((post: any) => ({
+    return data.results?.slice(0, 10).map((post: any) => ({
       id: `cryptopanic-${post.id}`,
       title: post.title,
       source: post.source?.title || 'CryptoPanic',
@@ -283,8 +283,10 @@ function getRelativeTime(timestamp: string): string {
 
 /**
  * Fetch aggregated Bitcoin news from multiple sources
+ * @param limit - Number of articles to return (default: 5)
+ * @param offset - Number of articles to skip for pagination (default: 0)
  */
-export async function fetchBitcoinNews(): Promise<NewsArticle[]> {
+export async function fetchBitcoinNews(limit: number = 5, offset: number = 0): Promise<NewsArticle[]> {
   try {
     // Ensure config is loaded first (will reload periodically)
     await ensureConfigLoaded();
@@ -293,7 +295,9 @@ export async function fetchBitcoinNews(): Promise<NewsArticle[]> {
     console.log('🎯 Current Bitcoin focus filters:', {
       searchTerms: newsConfig.searchTerms.slice(0, 5),
       excludeTerms: newsConfig.excludeTerms,
-      minRelevanceScore: 25
+      minRelevanceScore: 25,
+      limit,
+      offset
     });
     
     // Fetch from both sources in parallel
@@ -318,21 +322,23 @@ export async function fetchBitcoinNews(): Promise<NewsArticle[]> {
     console.log(`✓ Total relevant articles after final filtering: ${relevantArticles.length}`);
     
     // Sort by relevance score first, then by date
-    const finalArticles = relevantArticles
+    const sortedArticles = relevantArticles
       .sort((a, b) => {
         const scoreA = scoreBitcoinRelevance(a);
         const scoreB = scoreBitcoinRelevance(b);
         if (scoreB !== scoreA) return scoreB - scoreA; // Higher score first
         return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(); // Then newer first
-      })
-      .slice(0, 5);
+      });
+    
+    // Apply pagination
+    const finalArticles = sortedArticles.slice(offset, offset + limit);
       
-    if (finalArticles.length === 0) {
+    if (finalArticles.length === 0 && offset === 0) {
       console.warn('⚠️ No articles fetched, using mock data');
       return getMockNews();
     }
     
-    console.log('✅ Returning', finalArticles.length, 'articles');
+    console.log(`✅ Returning ${finalArticles.length} articles (offset: ${offset}, limit: ${limit})`);
     finalArticles.forEach(a => console.log(`  - ${a.title.slice(0, 60)}...`));
     
     return finalArticles;

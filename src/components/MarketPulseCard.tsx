@@ -14,31 +14,41 @@ interface PulseItem {
 }
 
 export const MarketPulseCard: React.FC = () => {
-  const [newsArticles, setNewsArticles] = useState<NewsArticle[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [newsCache, setNewsCache] = useState<Map<number, NewsArticle[]>>(new Map());
+  const [loading, setLoading] = useState(false);
+  const ARTICLES_PER_PAGE = 5;
 
+  // Fetch initial news on mount
   useEffect(() => {
     let mounted = true;
 
-    const fetchNews = async () => {
+    const fetchInitialNews = async () => {
+      setLoading(true);
       try {
-        const articles = await fetchBitcoinNews();
+        const articles = await fetchBitcoinNews(ARTICLES_PER_PAGE, 0);
         if (mounted) {
-          setNewsArticles(articles);
-          setLoading(false);
+          setNewsCache(new Map([[0, articles]]));
         }
       } catch (error) {
-        console.error('Error fetching news:', error);
-        if (mounted) {
-          setLoading(false);
-        }
+        console.error('Error fetching initial news:', error);
+      } finally {
+        if (mounted) setLoading(false);
       }
     };
 
-    fetchNews();
+    fetchInitialNews();
 
-    // Refresh news every 5 minutes
-    const interval = setInterval(fetchNews, 5 * 60 * 1000);
+    // Refresh news every 5 minutes (refresh page 0)
+    const interval = setInterval(() => {
+      fetchBitcoinNews(ARTICLES_PER_PAGE, 0).then(articles => {
+        setNewsCache(prev => {
+          const newCache = new Map(prev);
+          newCache.set(0, articles);
+          return newCache;
+        });
+      });
+    }, 5 * 60 * 1000);
 
     return () => {
       mounted = false;
@@ -57,7 +67,8 @@ export const MarketPulseCard: React.FC = () => {
     }
   };
 
-  const pulseItems: PulseItem[] = newsArticles.map(article => {
+  const currentNewsArticles = newsCache.get(currentPage) || [];
+  const pulseItems: PulseItem[] = currentNewsArticles.map(article => {
     const formatted = formatNewsArticle(article);
     const iconData = getCategoryIcon(article.category);
     
@@ -70,23 +81,67 @@ export const MarketPulseCard: React.FC = () => {
     };
   });
 
-  const handleRefresh = async () => {
-    setLoading(true);
-    try {
-      const articles = await fetchBitcoinNews();
-      setNewsArticles(articles);
-    } catch (error) {
-      console.error('Error refreshing news:', error);
-    } finally {
-      setLoading(false);
+  const handlePrevPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(prev => prev - 1);
     }
   };
+
+  const handleNextPage = async () => {
+    const nextPage = currentPage + 1;
+    
+    // Check if we already have this page cached
+    if (newsCache.has(nextPage)) {
+      setCurrentPage(nextPage);
+    } else {
+      // Fetch next page of articles
+      setLoading(true);
+      try {
+        const offset = nextPage * ARTICLES_PER_PAGE;
+        const articles = await fetchBitcoinNews(ARTICLES_PER_PAGE, offset);
+        
+        if (articles.length > 0) {
+          setNewsCache(prev => new Map(prev).set(nextPage, articles));
+          setCurrentPage(nextPage);
+        } else {
+          console.log('No more articles available');
+        }
+      } catch (error) {
+        console.error('Error fetching next page:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const hasNextPage = newsCache.has(currentPage + 1) || currentPage === 0;
+  const hasPrevPage = currentPage > 0;
 
   return (
     <Card className="flex-1 relative z-0">
       <div className="p-4 lg:px-6 border-b border-slate-200 dark:border-[#3b4754] flex justify-between items-center">
-        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Market Pulse</h3>
-        <IconButton icon="refresh" onClick={handleRefresh} disabled={loading} />
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white">Market Pulse</h3>
+          {currentPage > 0 && (
+            <span className="text-xs text-text-secondary">
+              Page {currentPage + 1}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <IconButton 
+            icon="chevron_left" 
+            onClick={handlePrevPage} 
+            disabled={!hasPrevPage}
+            aria-label="Previous news page"
+          />
+          <IconButton 
+            icon="chevron_right" 
+            onClick={handleNextPage} 
+            disabled={loading}
+            aria-label="Next news page"
+          />
+        </div>
       </div>
       
       {loading && pulseItems.length === 0 ? (
