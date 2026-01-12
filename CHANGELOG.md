@@ -16,30 +16,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [1.6.1] - 2026-01-12
+## [1.7.0] - 2026-01-13
 ### Added
-- **News pagination** - Arrow navigation to browse through multiple pages of Bitcoin news (5 articles per page)
-- **Smart caching** - News pages are cached to avoid redundant API calls when navigating backward
-
-### Changed
-- **Replaced refresh button with arrows** - Left/right arrows for intuitive news browsing
-- **Increased article pool** - Fetch up to 25 articles from NewsAPI and 10 from CryptoPanic for better variety
+- **Theme toggle button** - Switch between light and dark modes with animated icon button in header
+- **Theme persistence** - User theme preference saved to localStorage and restored on page load
+- **System theme detection** - Automatically detects and applies OS dark/light mode preference on first visit
 
 ### Improved
-- **API flexibility** - News service now supports pagination with limit/offset parameters
-- **Better UX** - Page indicator shows current position, arrows disabled at boundaries
-
----
-
-## [1.6.0] - 2026-01-12
-### Improved
-- Major overhaul of news filtering system for Market Pulse card
-- Added Bitcoin relevance scoring to filter out non-Bitcoin news
-- Enhanced search queries for NewsAPI to focus on Bitcoin context
-- Updated search and exclude terms for more accurate Bitcoin news
-- Improved error handling and fallback mock data
-- News config now reloads automatically every 5 minutes
-- Added debug function for testing news relevance in browser console
+- **Scrollbar styling** - Better contrast in light mode with adaptive colors for both themes
+- **Icon button accessibility** - Added disabled states and aria-labels for better UX
+- **Color consistency** - Refined hover states and transitions for seamless theme switching
 
 ---
 
@@ -362,3 +348,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - [ ] Data export (CSV, PDF)
 - [ ] Customizable dashboard widgets
 - [ ] Alert notifications (push, email)
+
+---
+
+## API Reference
+
+### Coinbase Exchange API (Public)
+| Endpoint | Function | Description |
+|----------|----------|-------------|
+| `/products/btc-usd/candles` | `fetchBTCCandles()` | OHLCV data |
+| `/products/btc-usd/stats` | `fetchBTCStats()` | 24h statistics |
+| `/products/btc-usd/ticker` | `fetchBTCTicker()` | Current price |
+
+### Auth Server API
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/auth/register` | POST | Create new user |
+| `/api/auth/login` | POST | Login user |
+| `/api/auth/me` | GET | Get current user (requires Bearer token) |
+| `/api/auth/logout` | POST | Logout user |
+| `/api/health` | GET | Server health check |
+
+---
+
+*This changelog is maintained manually. Last updated: 2026-01-02*

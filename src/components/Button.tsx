@@ -25,13 +25,17 @@ interface IconButtonProps {
   icon: string;
   onClick?: () => void;
   className?: string;
+  disabled?: boolean;
+  'aria-label'?: string;
 }
 
-export const IconButton: React.FC<IconButtonProps> = ({ icon, onClick, className = '' }) => {
+export const IconButton: React.FC<IconButtonProps> = ({ icon, onClick, className = '', disabled = false, 'aria-label': ariaLabel }) => {
   return (
     <button
       onClick={onClick}
-      className={`text-text-secondary hover:text-white transition-colors ${className}`}
+      disabled={disabled}
+      aria-label={ariaLabel}
+      className={`text-text-secondary hover:text-slate-900 dark:hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
     >
       <span className="material-symbols-outlined">{icon}</span>
     </button>

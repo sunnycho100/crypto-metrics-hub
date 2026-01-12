@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useChart } from '../contexts/ChartContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { LoginModal } from './LoginModal';
 
 interface HeaderProps {
@@ -10,6 +11,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
   const { user, isAuthenticated, logout, isLoading } = useAuth();
   const { activeTimeframe, setActiveTimeframe } = useChart();
+  const { theme, toggleTheme } = useTheme();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
@@ -82,8 +84,21 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
         
         {/* Actions */}
         <div className="flex gap-2">
+          {/* Theme Toggle */}
+          <button 
+            onClick={toggleTheme}
+            className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 dark:bg-surface-dark hover:bg-slate-200 dark:hover:bg-[#3b4754] transition-all duration-200 group"
+            aria-label="Toggle theme"
+          >
+            {theme === 'light' ? (
+              <span className="material-symbols-outlined text-slate-600 group-hover:text-slate-900 transition-colors">dark_mode</span>
+            ) : (
+              <span className="material-symbols-outlined text-amber-400 group-hover:text-amber-300 transition-colors">light_mode</span>
+            )}
+          </button>
+
           <button className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 dark:bg-surface-dark hover:bg-slate-200 dark:hover:bg-[#3b4754] transition-colors relative group">
-            <span className="material-symbols-outlined text-text-secondary group-hover:text-white">notifications</span>
+            <span className="material-symbols-outlined text-text-secondary group-hover:text-slate-900 dark:group-hover:text-white transition-colors">notifications</span>
             <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-danger border-2 border-surface-light dark:border-surface-dark"></span>
           </button>
           

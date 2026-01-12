@@ -26,15 +26,28 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #111418;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #3b4754;
+  background: #9dabb9;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
+  background: #7a8a9a;
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-track {
+  background: #111418;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #3b4754;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
   background: #4b5966;
 }
 
