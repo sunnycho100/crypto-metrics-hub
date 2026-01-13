@@ -16,16 +16,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.8.1] - 2026-01-14
+### Fixed
+- **Syntax error** - Resolved JSX parsing issue in FearGreedCard component return statement
+- **TypeScript errors** - Fixed type safety issues in FearGreedHistoryModal (null checks, unused imports, Chart.js API compatibility)
+- **TimeButton props** - Corrected component prop names for proper type checking
+
+---
+
 ## [1.8.0] - 2026-01-14
 ### Added
 - **Crypto Fear & Greed Index** - Live sentiment indicator from Alternative.me API with custom animated SVG gauge component
 - **Custom gauge visualization** - 270° circular gauge with gradient background, glow effects, and smooth animations matching site theme
 - **Trading suggestions** - Context-aware buy/sell recommendations based on current Fear & Greed value
 - **Market sentiment card** - New dashboard card displaying real-time index (0-100), classification labels, and educational tooltips
+- **Historical chart modal** - Click card to view Fear & Greed history with Chart.js line chart, multiple timeframes (7D/30D/90D/1Y), and period statistics
+- **Interactive analytics** - Modal shows average, peak, low values and extreme days count with draggable interface
 
 ### Improved
 - **Right column layout** - Added Fear & Greed card at top for immediate visibility of market sentiment
 - **Theme consistency** - Gauge colors dynamically adapt to dark/light mode with matching glow effects
+- **Clickable interaction** - Card hover states and click-to-expand functionality for deeper analysis
 
 ---
 

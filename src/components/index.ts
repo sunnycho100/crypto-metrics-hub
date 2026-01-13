@@ -7,6 +7,7 @@ export { TimeButton, IconButton, PrimaryButton, TextButton } from './Button';
 export { PriceChart, MiniBarChart } from './Charts';
 export { LoginModal } from './LoginModal';
 export { FearGreedGauge } from './FearGreedGauge';
+export { FearGreedHistoryModal } from './FearGreedHistoryModal';
 
 // Dashboard cards
 export { KPICards } from './KPICards';
