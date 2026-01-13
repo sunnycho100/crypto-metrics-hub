@@ -4,8 +4,6 @@ A modern React + TypeScript dashboard for Bitcoin metrics monitoring with live d
 
 ## 🌐 Live Demo
 
-**Production URL**: https://3000-i1hvjqf2g5rywornix0nr-5634da27.sandbox.novita.ai
-
 ## ✨ Features Implemented
 
 ### Current Features

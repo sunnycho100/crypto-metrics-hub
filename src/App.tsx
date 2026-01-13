@@ -6,7 +6,8 @@ import {
   DerivativesTable,
   CompositeHealthCard,
   AlertsCard,
-  MarketPulseCard
+  MarketPulseCard,
+  FearGreedCard
 } from './components';
 
 function App() {
@@ -37,6 +38,9 @@ function App() {
             
             {/* Right Column - 4 cols */}
             <div className="xl:col-span-4 flex flex-col gap-6 relative z-0">
+              {/* Fear & Greed Index */}
+              <FearGreedCard />
+              
               {/* Composite Health */}
               <CompositeHealthCard />
               

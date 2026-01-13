@@ -6,6 +6,7 @@ export { Header } from './Header';
 export { TimeButton, IconButton, PrimaryButton, TextButton } from './Button';
 export { PriceChart, MiniBarChart } from './Charts';
 export { LoginModal } from './LoginModal';
+export { FearGreedGauge } from './FearGreedGauge';
 
 // Dashboard cards
 export { KPICards } from './KPICards';
@@ -15,3 +16,4 @@ export { DerivativesTable } from './DerivativesTable';
 export { CompositeHealthCard } from './CompositeHealthCard';
 export { AlertsCard } from './AlertsCard';
 export { MarketPulseCard } from './MarketPulseCard';
+export { FearGreedCard } from './FearGreedCard';

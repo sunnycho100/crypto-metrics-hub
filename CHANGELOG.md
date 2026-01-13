@@ -16,6 +16,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.8.0] - 2026-01-14
+### Added
+- **Crypto Fear & Greed Index** - Live sentiment indicator from Alternative.me API with custom animated SVG gauge component
+- **Custom gauge visualization** - 270° circular gauge with gradient background, glow effects, and smooth animations matching site theme
+- **Trading suggestions** - Context-aware buy/sell recommendations based on current Fear & Greed value
+- **Market sentiment card** - New dashboard card displaying real-time index (0-100), classification labels, and educational tooltips
+
+### Improved
+- **Right column layout** - Added Fear & Greed card at top for immediate visibility of market sentiment
+- **Theme consistency** - Gauge colors dynamically adapt to dark/light mode with matching glow effects
+
+---
+
 ## [1.7.0] - 2026-01-13
 ### Added
 - **Theme toggle button** - Switch between light and dark modes with animated icon button in header
