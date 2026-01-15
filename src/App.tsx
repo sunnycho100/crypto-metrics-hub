@@ -7,7 +7,8 @@ import {
   CompositeHealthCard,
   AlertsCard,
   MarketPulseCard,
-  FearGreedCard
+  FearGreedCard,
+  ContactFooter
 } from './components';
 
 function App() {
@@ -51,6 +52,9 @@ function App() {
               <MarketPulseCard />
             </div>
           </div>
+          
+          {/* Contact & Support Footer */}
+          <ContactFooter />
         </main>
       </div>
     </div>

@@ -16,6 +16,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.8.2] - 2026-01-15
+### Added
+- **Contact & Support footer** - Interactive feedback form at page bottom with name, email, and message fields
+- **Email integration** - Submissions open default email client with pre-filled message to such4283@gmail.com
+- **Success feedback** - Visual confirmation message shown after form submission
+- **Footer branding** - Copyright notice and community message at page bottom
+
+---
+
 ## [1.8.1] - 2026-01-14
 ### Fixed
 - **Syntax error** - Resolved JSX parsing issue in FearGreedCard component return statement

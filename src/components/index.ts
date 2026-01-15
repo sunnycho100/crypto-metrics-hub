@@ -8,6 +8,7 @@ export { PriceChart, MiniBarChart } from './Charts';
 export { LoginModal } from './LoginModal';
 export { FearGreedGauge } from './FearGreedGauge';
 export { FearGreedHistoryModal } from './FearGreedHistoryModal';
+export { ContactFooter } from './ContactFooter';
 
 // Dashboard cards
 export { KPICards } from './KPICards';
