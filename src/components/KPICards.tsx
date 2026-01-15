@@ -200,14 +200,14 @@ export const KPICards: React.FC = () => {
     return `$${value.toFixed(2)}`;
   };
 
-  const calculateChangePercent = (latest?: number | null, previous?: number | null) => {
+  const calculateChangePercent = (latest?: number | null, previous?: number | null): { change: string; changeType: 'positive' | 'negative' } => {
     if (latest === null || previous === null || latest === undefined || previous === undefined || previous === 0) {
-      return { change: '—', changeType: 'positive' as const };
+      return { change: '—', changeType: 'positive' };
     }
     const changePercent = ((latest - previous) / previous) * 100;
     return {
       change: `${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%`,
-      changeType: changePercent >= 0 ? 'positive' : 'negative' as const
+      changeType: changePercent >= 0 ? 'positive' : 'negative'
     };
   };
 
@@ -253,7 +253,7 @@ export const KPICards: React.FC = () => {
       modalTitle: 'Volume Analytics',
       modalContent: stats ? (
         <div className="relative">
-          <div className="space-y-0">
+          <div className="space-y-4">
             <ModalRow label="24h Volume" value={formatVolume(stats.volume)} />
             <ModalRow label="30d Volume" value={formatVolume(stats.volume_30day)} />
             {useMovingAverage && historicalVolumes.length >= 3 ? (

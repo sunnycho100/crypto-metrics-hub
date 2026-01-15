@@ -16,6 +16,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.8.4] - 2026-01-15
+### Fixed
+- **Volume tab spacing** - Fixed inconsistent spacing between metric rows in 24H Volume Analytics modal to match other popups
+
+---
+
+## [1.8.3] - 2026-01-15
+### Improved
+- **Collapsible contact footer** - Contact form now starts collapsed as small "Contact Us" button and expands when clicked
+- **Simplified footer** - Removed unnecessary tagline text, keeping just copyright notice
+
+---
+
 ## [1.8.2] - 2026-01-15
 ### Added
 - **Contact & Support footer** - Interactive feedback form at page bottom with name, email, and message fields
