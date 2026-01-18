@@ -16,6 +16,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.9.1] - 2026-01-18
+### Fixed
+- **MetricsSummaryBanner persistence** - Fixed banner disappearing issue by changing save behavior to only persist data on component unmount instead of every metric update
+- **Last visit timestamp accuracy** - Banner now correctly maintains last visit time across sessions instead of resetting every 60 seconds
+- **Change detection reliability** - Metrics comparison now calculates only once on initialization, preventing constant recalculation
+
+### Added
+- **Debug utilities** - Added browser console test functions for testing banner with different time scenarios (2 hours ago, 3 days ago, 1 week ago, etc.)
+- **Debug logging** - Console logs show last visit data, calculated changes, and save events for easier troubleshooting
+- **Initialization guard** - Prevents unnecessary recalculation of changes when metrics auto-refresh
+
+### Improved
+- **Component lifecycle** - Uses proper React cleanup pattern (useEffect return) for saving visit data
+- **Testing workflow** - Created comprehensive testing guide with multiple scenarios and expected behaviors
+
+---
+
 ## [1.9.0] - 2026-01-18
 ### Added
 - **Metrics Summary Banner** - Personalized landing page showing changes since last visit with 4 design variations (Card, Compact, Minimal, Hero)

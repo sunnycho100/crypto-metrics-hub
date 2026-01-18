@@ -14,10 +14,11 @@ export function MetricsSummaryBanner() {
   const [lastVisitTime, setLastVisitTime] = useState<string>('');
   const [metricChanges, setMetricChanges] = useState<MetricChange[]>([]);
   const [isFirstVisit, setIsFirstVisit] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   useEffect(() => {
     // Don't process if we don't have current metrics yet
-    if (!currentMetrics) return;
+    if (!currentMetrics || hasInitialized) return;
 
     const lastVisit = getLastVisit();
     
@@ -26,12 +27,35 @@ export function MetricsSummaryBanner() {
       const changes = calculateAllChanges(currentMetrics, lastVisit.metrics);
       setMetricChanges(changes);
       setIsFirstVisit(false);
+      
+      console.log('🔍 Last Visit Debug:', {
+        lastVisitTimestamp: new Date(lastVisit.timestamp).toLocaleString(),
+        timeSince: formatTimeSince(lastVisit.timestamp),
+        currentPrice: currentMetrics.price,
+        previousPrice: lastVisit.metrics.price,
+        changes: changes.map(c => ({
+          label: c.label,
+          change: c.category === 'index' ? c.absoluteChange : c.percentageChange,
+          isSignificant: c.isSignificant
+        }))
+      });
     } else {
       setIsFirstVisit(true);
+      console.log('👋 First visit detected');
     }
 
-    // Save current visit for next time
-    saveLastVisit(currentMetrics);
+    // Mark as initialized so we don't recalculate on every metric update
+    setHasInitialized(true);
+  }, [currentMetrics, hasInitialized]);
+
+  // Save current visit ONLY on component unmount (when user leaves)
+  useEffect(() => {
+    return () => {
+      if (currentMetrics) {
+        console.log('💾 Saving visit data on unmount');
+        saveLastVisit(currentMetrics);
+      }
+    };
   }, [currentMetrics]);
 
   // Show nothing while loading
