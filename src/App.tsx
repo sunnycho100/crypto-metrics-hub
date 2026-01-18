@@ -23,24 +23,33 @@ function DashboardContent() {
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        // Fetch real-time data from APIs
-        const [btcStats, fearGreedData] = await Promise.all([
-          fetchBTCStats(),
-          fetchFearGreedIndex(1)
-        ]);
-
-        // Parse Fear & Greed data
-        const fgValue = parseInt(fearGreedData.data[0].value);
-        const fgClassification = fearGreedData.data[0].value_classification;
-
+        // Fetch BTC stats first (faster API)
+        const btcStats = await fetchBTCStats();
+        
         // Parse BTC stats
         const price = parseFloat(btcStats.last);
         const volume24h = parseFloat(btcStats.volume);
         const priceChange24h = ((parseFloat(btcStats.last) - parseFloat(btcStats.open)) / parseFloat(btcStats.open)) * 100;
-
-        // TODO: Market cap should come from CoinGecko API when implemented
-        // For now, estimate based on price (21M BTC * price / 1 trillion)
         const estimatedMarketCap = (21000000 * price) / 1000000000000;
+
+        // Try to fetch Fear & Greed with timeout
+        let fgValue = 43; // Default fallback
+        let fgClassification = 'Fear';
+        
+        try {
+          const fearGreedPromise = fetchFearGreedIndex(1);
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Fear & Greed API timeout')), 5000)
+          );
+          
+          const fearGreedData = await Promise.race([fearGreedPromise, timeoutPromise]) as any;
+          fgValue = parseInt(fearGreedData.data[0].value);
+          fgClassification = fearGreedData.data[0].value_classification;
+          console.log('✅ Fear & Greed data fetched:', { fgValue, fgClassification });
+        } catch (fgError) {
+          console.warn('⚠️ Fear & Greed API slow/failed, using fallback:', fgError);
+          // Continue with fallback values
+        }
 
         const metricsSnapshot: MetricsSnapshot = {
           price,

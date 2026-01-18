@@ -16,7 +16,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [1.9.1] - 2026-01-18
+## [1.9.2] - 2026-01-18
+### Fixed
+
+### Improved
+
+## [1.9.3] - 2026-01-18
+### Fixed
+- **Fear & Greed Card rendering** - Fixed JSX and logic errors causing the card to break; restored correct conditional rendering and closing tags
+- **MetricsContext integration** - Refactored Fear & Greed Card to use MetricsContext for data, eliminating duplicate API calls and improving consistency
+- **Code cleanup** - Removed legacy fetch logic and duplicate sections from Fear & Greed Card; simplified error handling and UI state
+- **Live indicator** - Added green pulse dot and "Live" label for real-time data freshness
+
+### Fixed
+## [1.9.3] - 2026-01-18
+### Fixed
+- Fear & Greed Card rendering: Fixed JSX and logic errors causing the card to break; restored correct conditional rendering and closing tags
+- MetricsContext integration: Refactored Fear & Greed Card to use MetricsContext for data, eliminating duplicate API calls and improving consistency
+
+### Improved
+- Code cleanup: Removed legacy fetch logic and duplicate sections from Fear & Greed Card; simplified error handling and UI state
+- Live indicator: Added green pulse dot and "Live" label for real-time data freshness
+- **Last visit timestamp accuracy** - Banner now correctly maintains last visit time across sessions instead of resetting every 60 seconds
+
+### Added
+- **Initialization guard** - Prevents unnecessary recalculation of changes when metrics auto-refresh
+
+
+
+## [1.9.0] - 2026-01-18
 ### Fixed
 - **MetricsSummaryBanner persistence** - Fixed banner disappearing issue by changing save behavior to only persist data on component unmount instead of every metric update
 - **Last visit timestamp accuracy** - Banner now correctly maintains last visit time across sessions instead of resetting every 60 seconds

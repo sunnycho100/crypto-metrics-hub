@@ -1,65 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FearGreedGauge } from './FearGreedGauge';
 import { FearGreedHistoryModal } from './FearGreedHistoryModal';
-import { fetchFearGreedIndex, type FearGreedData } from '../services/feargreed';
+import { useMetrics } from '../contexts/MetricsContext';
 
 export const FearGreedCard: React.FC = () => {
-  const [data, setData] = useState<FearGreedData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { metrics, isLoading, error } = useMetrics();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    let mounted = true;
-
-    const fetchData = async () => {
-      try {
-        const response = await fetchFearGreedIndex(1);
-        if (mounted && response.data.length > 0) {
-          setData(response.data[0]);
-          setError(null);
-        }
-      } catch (err) {
-        console.error('Failed to fetch Fear & Greed Index:', err);
-        if (mounted) {
-          setError('Failed to load data');
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchData();
-
-    // Refresh every 10 minutes (index updates hourly)
-    const interval = setInterval(fetchData, 10 * 60 * 1000);
-
-    return () => {
-      mounted = false;
-      clearInterval(interval);
-    };
-  }, []);
-
-  const value = data ? parseInt(data.value) : 0;
+  const value = metrics?.fearGreedIndex ?? 0;
+  const valueClassification = metrics?.fearGreedValue ?? '';
+  const loading = isLoading;
+  const hasError = error !== null;
   
-  // Format timestamp
+  // Format update time - shows "Live" since data refreshes every 60s
   const getFormattedTime = () => {
-    if (!data) return '';
-    const date = new Date(parseInt(data.timestamp) * 1000);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    
-    if (diffHours > 24) {
-      return `${Math.floor(diffHours / 24)}d ago`;
-    } else if (diffHours > 0) {
-      return `${diffHours}h ago`;
-    } else {
-      return `${diffMins}m ago`;
-    }
+    return 'Live';
   };
 
   // Get trading suggestion based on value
@@ -92,7 +47,7 @@ export const FearGreedCard: React.FC = () => {
     <>
       <div 
         className="flex flex-col rounded-xl bg-surface-light dark:bg-surface-dark shadow-sm border border-slate-200 dark:border-transparent overflow-hidden relative group cursor-pointer hover:border-primary/50 dark:hover:border-primary/50 transition-all duration-300"
-        onClick={() => !loading && !error && setIsModalOpen(true)}
+        onClick={() => !loading && !hasError && setIsModalOpen(true)}
       >
         {/* Gradient accent bar */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-danger via-yellow-400 to-success"></div>
@@ -107,8 +62,9 @@ export const FearGreedCard: React.FC = () => {
               </h3>
               <p className="text-sm text-text-secondary mt-1">Market sentiment indicator</p>
             </div>
-            {!loading && !error && (
-              <span className="text-xs text-text-secondary bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">
+            {!loading && !hasError && (
+              <span className="text-xs text-text-secondary bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full flex items-center gap-1">
+                <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                 {getFormattedTime()}
               </span>
             )}
@@ -121,10 +77,10 @@ export const FearGreedCard: React.FC = () => {
                 <div className="w-40 h-40 rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse"></div>
                 <div className="w-24 h-6 rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse"></div>
               </div>
-            ) : error ? (
+            ) : hasError ? (
               <div className="flex flex-col items-center gap-3 text-text-secondary">
                 <span className="material-symbols-outlined text-4xl">error</span>
-                <p className="text-sm">{error}</p>
+                <p className="text-sm">Failed to load data</p>
               </div>
             ) : (
               <FearGreedGauge value={value} size="medium" />
@@ -132,7 +88,7 @@ export const FearGreedCard: React.FC = () => {
           </div>
 
           {/* Trading Suggestion */}
-          {!loading && !error && (
+          {!loading && !hasError && (
             <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
               <span className="material-symbols-outlined text-primary flex-shrink-0 mt-0.5">
                 {suggestion.icon}
@@ -172,7 +128,7 @@ export const FearGreedCard: React.FC = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         currentValue={value}
-        currentClassification={data?.value_classification || ''}
+        currentClassification={valueClassification}
       />
     </>
   );

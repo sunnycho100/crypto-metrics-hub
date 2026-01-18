@@ -41,7 +41,7 @@ if [ "$BACKEND_ENABLED" = true ]; then
     
     while [ $COUNTER -lt $TIMEOUT ]; do
         if [ -f backend_output.log ]; then
-            if grep -q "Server running" backend_output.log || grep -q "listening" backend_output.log; then
+            if grep -q "Server running on" backend_output.log; then
                 echo -e "${GREEN}✓ Backend server started on port 3001${NC}\n"
                 BACKEND_READY=true
                 break
