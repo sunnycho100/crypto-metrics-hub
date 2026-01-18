@@ -9,6 +9,7 @@ export { LoginModal } from './LoginModal';
 export { FearGreedGauge } from './FearGreedGauge';
 export { FearGreedHistoryModal } from './FearGreedHistoryModal';
 export { ContactFooter } from './ContactFooter';
+export { MetricsSummaryBanner } from './MetricsSummaryBanner';
 
 // Dashboard cards
 export { KPICards } from './KPICards';

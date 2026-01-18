@@ -27,6 +27,7 @@ A modern React + TypeScript dashboard for Bitcoin metrics monitoring with live d
   - Market Cap (mock data - requires external API)
   - Open Interest (mock data - requires derivatives API)
 - [V] **Dashboard Components**
+  - Metrics Summary Banner (personalized landing page with change tracking)
   - Composite Health Card
   - Alerts & Triggers Card
   - Market Pulse Card (live Bitcoin news from CryptoPanic & NewsAPI)
@@ -38,6 +39,12 @@ A modern React + TypeScript dashboard for Bitcoin metrics monitoring with live d
   - Reusable component library
   - Smooth hover effects and transitions
   - Modal cards with detailed metrics
+- [V] **Personalized Experience**
+  - Last visit tracking with localStorage
+  - Metric change detection since last visit
+  - Human-readable time formatting ("2 hours ago")
+  - Significant change highlighting
+  - 4 design variations for summary banner
 
 ### Features Not Yet Implemented
 - [TODO] Market Cap live data (needs CoinGecko/CoinMarketCap API)

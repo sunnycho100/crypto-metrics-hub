@@ -8,7 +8,8 @@ import {
   AlertsCard,
   MarketPulseCard,
   FearGreedCard,
-  ContactFooter
+  ContactFooter,
+  MetricsSummaryBanner
 } from './components';
 
 function App() {
@@ -20,6 +21,9 @@ function App() {
         
         {/* Main Content */}
         <main className="flex-1 p-4 lg:p-6 xl:p-8 max-w-[1600px] mx-auto w-full flex flex-col gap-6 relative z-0">
+          {/* Welcome Back / Summary Banner */}
+          <MetricsSummaryBanner />
+          
           {/* KPI Cards Row */}
           <KPICards />
           
