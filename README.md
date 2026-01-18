@@ -2,17 +2,17 @@
 
 A modern React + TypeScript dashboard for Bitcoin metrics monitoring with live data integration from Coinbase Exchange API. Features real-time price tracking, interactive Chart.js visualizations, and a clean, responsive design.
 
-## 🌐 Live Demo
+## [DEMO] Live Demo
 
-## ✨ Features Implemented
+## [FEATURES] Features Implemented
 
 ### Current Features
-- ✅ **Live Coinbase API Integration**
+- [V] **Live Coinbase API Integration**
   - Real-time Bitcoin price data
   - 24-hour trading statistics (high, low, open, close)
   - 24-hour and 30-day volume metrics
   - Auto-refresh every 30-60 seconds
-- ✅ **Interactive Price Chart**
+- [V] **Interactive Price Chart**
   - Live OHLCV candlestick data from Coinbase (1H, 4H, 1D, 1W, 1M, 1Y)
   - Extended historical data from CoinGecko (MAX = 365 days due to free API limits)
   - Multiple timeframes: 1H, 4H, 1D, 1W, 1M, 1Y, MAX
@@ -21,18 +21,18 @@ A modern React + TypeScript dashboard for Bitcoin metrics monitoring with live d
   - Responsive tooltips with detailed price info
   - Automatic data source switching (Coinbase for recent, CoinGecko for historical)
   - Global state management for timeframe synchronization
-- ✅ **KPI Cards with Live Data**
+- [V] **KPI Cards with Live Data**
   - Bitcoin Price (live from Coinbase)
   - 24H Volume (live from Coinbase with 3-day moving average analysis)
   - Market Cap (mock data - requires external API)
   - Open Interest (mock data - requires derivatives API)
-- ✅ **Dashboard Components**
+- [V] **Dashboard Components**
   - Composite Health Card
   - Alerts & Triggers Card
   - Market Pulse Card (live Bitcoin news from CryptoPanic & NewsAPI)
   - On-Chain Metrics (mock data)
   - Derivatives Table (mock data)
-- ✅ **Modern UI/UX**
+- [V] **Modern UI/UX**
   - Responsive layout with grid system
   - Clean light/dark theme support
   - Reusable component library
@@ -40,16 +40,16 @@ A modern React + TypeScript dashboard for Bitcoin metrics monitoring with live d
   - Modal cards with detailed metrics
 
 ### Features Not Yet Implemented
-- ⏳ Market Cap live data (needs CoinGecko/CoinMarketCap API)
-- ⏳ Open Interest live data (needs derivatives exchange APIs)
-- ⏳ On-chain metrics integration (needs Glassnode/CryptoQuant)
-- ✅ User authentication (basic implementation complete)
-- ⏳ Real-time WebSocket updates
-- ⏳ Data export functionality (CSV, PDF)
-- ⏳ Customizable dashboard widgets
-- ⏳ Alert creation and notifications
+- [TODO] Market Cap live data (needs CoinGecko/CoinMarketCap API)
+- [TODO] Open Interest live data (needs derivatives exchange APIs)
+- [TODO] On-chain metrics integration (needs Glassnode/CryptoQuant)
+- [V] User authentication (basic implementation complete)
+- [TODO] Real-time WebSocket updates
+- [TODO] Data export functionality (CSV, PDF)
+- [TODO] Customizable dashboard widgets
+- [TODO] Alert creation and notifications
 
-## 📋 Missing API Connections TODO
+## [API] Missing API Connections TODO
 
 The following components display mock data and need API integrations:
 
@@ -57,20 +57,20 @@ The following components display mock data and need API integrations:
 
 | Component | Current Status | Required API | Implementation Notes |
 |-----------|----------------|--------------|----------------------|
-| **Market Cap KPI Card** | 📊 Mock Data | CoinGecko/CoinMarketCap | Free tier available, no auth required |
-| **Open Interest KPI Card** | 📊 Mock Data | Deribit/Binance Futures | May require API key for higher limits |
-| **MVRV Ratio** | ✅ **LIVE** | CryptoQuant | **Now integrated!** Free tier available, see [CRYPTOQUANT_INTEGRATION.md](CRYPTOQUANT_INTEGRATION.md) |
-| **Active Addresses** | 📊 Mock Data | Glassnode/CryptoQuant | Paid API, on-chain metrics |
-| **Hash Rate** | 📊 Mock Data | Blockchain.com/Glassnode | Some endpoints free |
+| **Market Cap KPI Card** | [MOCK] Mock Data | CoinGecko/CoinMarketCap | Free tier available, no auth required |
+| **Open Interest KPI Card** | [MOCK] Mock Data | Deribit/Binance Futures | May require API key for higher limits |
+| **MVRV Ratio** | [V] **LIVE** | CryptoQuant | **Now integrated!** Free tier available, see [CRYPTOQUANT_INTEGRATION.md](CRYPTOQUANT_INTEGRATION.md) |
+| **Active Addresses** | [MOCK] Mock Data | Glassnode/CryptoQuant | Paid API, on-chain metrics |
+| **Hash Rate** | [MOCK] Mock Data | Blockchain.com/Glassnode | Some endpoints free |
 
 ### Medium Priority Components
 
 | Component | Current Status | Required API | Implementation Notes |
 |-----------|----------------|--------------|----------------------|
-| **Derivatives Table** | 📊 Mock Data | Multiple exchanges (Binance, Deribit, etc.) | Aggregate multiple sources |
-| **Market Pulse Card** | ✅ Live Data | CryptoPanic + NewsAPI | Bitcoin news aggregation with dual sources |
-| **Composite Health** | 📊 Mock Data | Calculated from multiple sources | Algorithm based on other metrics |
-| **Alerts Configuration** | 🚧 UI Only | Backend alert system | Database + notification service |
+| **Derivatives Table** | [MOCK] Mock Data | Multiple exchanges (Binance, Deribit, etc.) | Aggregate multiple sources |
+| **Market Pulse Card** | [V] Live Data | CryptoPanic + NewsAPI | Bitcoin news aggregation with dual sources |
+| **Composite Health** | [MOCK] Mock Data | Calculated from multiple sources | Algorithm based on other metrics |
+| **Alerts Configuration** | [WIP] UI Only | Backend alert system | Database + notification service |
 
 ### Recommended Implementation Order
 
@@ -112,42 +112,42 @@ The following components display mock data and need API integrations:
    }
    ```
 
-## 🔐 Authentication System
+## [AUTH] Authentication System
 
 A basic authentication system is implemented with login/register functionality.
 
 ### Current Implementation
-- ✅ Express.js backend server with JWT authentication
-- ✅ User registration and login
-- ✅ Password hashing with bcrypt
-- ✅ JWT token-based sessions
-- ✅ React context for auth state management
-- ✅ Login/Register modal UI
+- [V] Express.js backend server with JWT authentication
+- [V] User registration and login
+- [V] Password hashing with bcrypt
+- [V] JWT token-based sessions
+- [V] React context for auth state management
+- [V] Login/Register modal UI
 
-### 🛡️ Security Features
-- ✅ **Environment Variables** - All secrets stored in `.env` files (not committed)
-- ✅ **Password Hashing** - bcrypt with 12 rounds
-- ✅ **JWT Tokens** - Secure token-based authentication
-- ✅ **Input Validation** - Email format and password length validation
-- ✅ **Safe for GitHub** - No hardcoded secrets, proper `.gitignore` setup
+### [SECURITY] Security Features
+- [V] **Environment Variables** - All secrets stored in `.env` files (not committed)
+- [V] **Password Hashing** - bcrypt with 12 rounds
+- [V] **JWT Tokens** - Secure token-based authentication
+- [V] **Input Validation** - Email format and password length validation
+- [V] **Safe for GitHub** - No hardcoded secrets, proper `.gitignore` setup
 
 > **Security**: See [SECURITY.md](SECURITY.md) for complete security checklist and production deployment requirements.
 
-### 📋 TODO - Production Deployment
+### [TODO] TODO - Production Deployment
 When deploying to production, the following changes are required:
 
 | Task | Status | Priority | Notes |
 |------|--------|----------|-------|
-| **Database Integration** | ⏳ TODO | 🔴 HIGH | Replace JSON file storage with PostgreSQL/MongoDB |
-| **Password Encryption at Rest** | ⏳ TODO | 🔴 HIGH | Use proper database encryption |
-| **JWT Secret Management** | ⏳ TODO | 🔴 HIGH | Use environment secrets manager (AWS Secrets Manager, HashiCorp Vault) |
-| **HTTPS/TLS** | ⏳ TODO | 🔴 HIGH | Enable SSL certificates for all API calls |
-| **Rate Limiting** | ⏳ TODO | 🟡 MEDIUM | Implement rate limiting on auth endpoints |
-| **Email Verification** | ⏳ TODO | 🟡 MEDIUM | Add email verification for registration |
-| **Password Reset** | ⏳ TODO | 🟡 MEDIUM | Implement forgot password flow |
-| **Session Blacklisting** | ⏳ TODO | 🟡 MEDIUM | Use Redis to track logged out tokens |
-| **OAuth Integration** | ⏳ TODO | 🟢 LOW | Add Google/GitHub OAuth login |
-| **2FA Support** | ⏳ TODO | 🟢 LOW | Add two-factor authentication |
+| **Database Integration** | [TODO] TODO | [HIGH] HIGH | Replace JSON file storage with PostgreSQL/MongoDB |
+| **Password Encryption at Rest** | [TODO] TODO | [HIGH] HIGH | Use proper database encryption |
+| **JWT Secret Management** | [TODO] TODO | [HIGH] HIGH | Use environment secrets manager (AWS Secrets Manager, HashiCorp Vault) |
+| **HTTPS/TLS** | [TODO] TODO | [HIGH] HIGH | Enable SSL certificates for all API calls |
+| **Rate Limiting** | [TODO] TODO | [MED] MEDIUM | Implement rate limiting on auth endpoints |
+| **Email Verification** | [TODO] TODO | [MED] MEDIUM | Add email verification for registration |
+| **Password Reset** | [TODO] TODO | [MED] MEDIUM | Implement forgot password flow |
+| **Session Blacklisting** | [TODO] TODO | [MED] MEDIUM | Use Redis to track logged out tokens |
+| **OAuth Integration** | [TODO] TODO | [LOW] LOW | Add Google/GitHub OAuth login |
+| **2FA Support** | [TODO] TODO | [LOW] LOW | Add two-factor authentication |
 
 ### Running the Auth Server
 
@@ -167,7 +167,7 @@ npm run dev
 
 The server runs on `http://localhost:3001` by default.
 
-## 🎨 Theme
+## [THEME] Theme
 
 The dashboard uses a **clean modern** color scheme with smooth gradients:
 
@@ -188,7 +188,7 @@ The dashboard uses a **clean modern** color scheme with smooth gradients:
 --orange: #f59e0b           /* Orange accent */
 ```
 
-## 📁 Project Structure
+## [PROJECT] Project Structure
 
 ```
 btc_metrics_hub/
@@ -238,7 +238,7 @@ btc_metrics_hub/
 └── package.json
 ```
 
-## 🚀 Getting Started
+## [START] Getting Started
 
 ### Prerequisites
 - Node.js 18+ and npm
@@ -291,7 +291,7 @@ npm run build        # Build TypeScript
 npm run start        # Start production server
 ```
 
-## 🛠️ Tech Stack
+## [TECH] Tech Stack
 
 ### Frontend
 - **React 18** - UI library
@@ -309,11 +309,11 @@ npm run start        # Start production server
 - **bcryptjs** - Password hashing
 - **JSON File Storage** - Temporary storage (TODO: migrate to database)
 
-## 📊 API Integration
+## [API] API Integration
 
 ### Current Integrations
 
-#### ✅ Coinbase Exchange API (Implemented)
+#### [V] Coinbase Exchange API (Implemented)
 
 The app uses the public Coinbase Exchange API endpoints:
 
@@ -326,7 +326,7 @@ The app uses the public Coinbase Exchange API endpoints:
 
 **Enhanced Volume Analysis**: The 24H volume feature uses a 3-day moving average for smoother volatility analysis, automatically falling back to 30-day average if historical data is unavailable. This provides more stable and meaningful volume change percentages.
 
-#### ✅ CoinGecko API (Implemented)
+#### [V] CoinGecko API (Implemented)
 
 Used for extended historical data:
 
@@ -338,7 +338,7 @@ Used for extended historical data:
 
 ### Missing Integrations (TODO)
 
-#### 🔧 CoinGecko API (Free - Recommended Next)
+#### [API] CoinGecko API (Free - Recommended Next)
 ```typescript
 // Endpoint: https://api.coingecko.com/api/v3/simple/price
 // Purpose: Market cap, price, 24h change, market dominance
@@ -346,7 +346,7 @@ Used for extended historical data:
 // Auth: None required
 ```
 
-#### 🔧 Binance Futures API (Free with limits)
+#### [API] Binance Futures API (Free with limits)
 ```typescript
 // Endpoint: https://fapi.binance.com/fapi/v1/openInterest
 // Purpose: Open interest data for derivatives
@@ -354,7 +354,7 @@ Used for extended historical data:
 // Auth: Optional (higher limits with API key)
 ```
 
-#### 🔧 Blockchain.com API (Free)
+#### [API] Blockchain.com API (Free)
 ```typescript
 // Endpoint: https://blockchain.info/q/hashrate
 // Purpose: Network hash rate, difficulty
@@ -362,7 +362,7 @@ Used for extended historical data:
 // Auth: None required
 ```
 
-#### 💰 Glassnode API (Paid - Premium metrics)
+#### [PAID] Glassnode API (Paid - Premium metrics)
 ```typescript
 // Endpoint: https://api.glassnode.com/v1/metrics
 // Purpose: MVRV ratio, active addresses, on-chain metrics
@@ -370,7 +370,7 @@ Used for extended historical data:
 // Auth: API key required
 ```
 
-#### 🔧 CoinGecko API (Free - For 5Y Chart Data)
+#### [API] CoinGecko API (Free - For 5Y Chart Data)
 ```typescript
 // Endpoint: https://api.coingecko.com/api/v3/coins/bitcoin/market_chart
 // Purpose: Extended historical price data (up to 5+ years)
@@ -404,7 +404,7 @@ console.log(fiveYearData.length, 'daily candles over 5 years');
 const customData = await fetchBTCHistoricalData(730); // 2 years
 ```
 
-## 📋 Recommended Next Steps
+## [NEXT] Recommended Next Steps
 
 1. **Additional Data Sources**
    - Integrate CoinGecko API for Market Cap and dominance
@@ -435,7 +435,7 @@ const customData = await fetchBTCHistoricalData(730); // 2 years
    - Touch-optimized chart interactions
    - Mobile-friendly modals and tooltips
 
-## 📝 Component Usage
+## [USAGE] Component Usage
 
 ### Using the Price Chart
 
@@ -475,7 +475,7 @@ const MyCard = () => (
 );
 ```
 
-## 🎯 Design Principles
+## [DESIGN] Design Principles
 
 - **Data-First**: Real-time data integration with graceful fallbacks
 - **Clean & Modern**: Light theme with smooth gradients and rounded shapes
@@ -485,7 +485,7 @@ const MyCard = () => (
 - **Performance**: Efficient data fetching with auto-refresh
 - **User Experience**: Loading states, error handling, and smooth interactions
 
-## � Changelog
+## [CHANGELOG] Changelog
 
 For a detailed list of all changes, updates, and version history, see [CHANGELOG.md](CHANGELOG.md).
 
@@ -499,12 +499,12 @@ For a detailed list of all changes, updates, and version history, see [CHANGELOG
 
 ### Current Implementation Status
 
-#### ✅ Fully Implemented (Live Data)
+#### [V] Fully Implemented (Live Data)
 - **Bitcoin Price & Volume** - Coinbase Exchange API
 - **Price Chart** - Live OHLCV data with 7 timeframes (1H-1Y from Coinbase, MAX from CoinGecko) + quick-access controls
 - **User Authentication** - JWT-based login/register system
 
-#### ⏳ Mock Data (Needs API Integration)
+#### [MOCK] Mock Data (Needs API Integration)
 - **Market Cap** - Currently showing $1.24T (static)
 - **Open Interest** - Currently showing $14.8B (static)
 - **MVRV Ratio** - Currently showing 1.84 (static)
@@ -513,16 +513,16 @@ For a detailed list of all changes, updates, and version history, see [CHANGELOG
 - **Derivatives Table** - Showing sample exchange data
 - **Market Pulse** - Showing sample news/sentiment data
 
-## 📄 License
+## [LICENSE] License
 
 MIT
 
-## 🤝 Contributing
+## [CONTRIB] Contributing
 
 Contributions are welcome! Feel free to fork and customize for your needs.
 
 ---
 
 **Last Updated**: 2026-01-03  
-**Status**: ✅ Active (Live Coinbase API + CoinGecko API + Auth Server)  
+**Status**: [V] Active (Live Coinbase API + CoinGecko API + Auth Server)  
 **Version**: 1.3.0
