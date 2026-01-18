@@ -1,32 +1,24 @@
 import { useState, useEffect } from 'react';
 import { Card } from './Card';
-import { Badge } from './Badge';
 import {
   getLastVisit,
   saveLastVisit,
   formatTimeSince,
   calculateAllChanges,
-  type MetricsSnapshot,
   type MetricChange,
 } from '../services/lastVisit';
+import { useMetrics } from '../contexts/MetricsContext';
 
 export function MetricsSummaryBanner() {
+  const { metrics: currentMetrics, isLoading } = useMetrics();
   const [lastVisitTime, setLastVisitTime] = useState<string>('');
   const [metricChanges, setMetricChanges] = useState<MetricChange[]>([]);
   const [isFirstVisit, setIsFirstVisit] = useState(false);
 
-  // TODO: Replace with real data from context/props
-  // This will be connected to actual live data in the next step
-  const currentMetrics: MetricsSnapshot = {
-    price: 102450,
-    fearGreedIndex: 43,
-    fearGreedValue: 'Fear',
-    volume24h: 28.5,
-    marketCap: 1.98,
-    priceChange24h: 2.5,
-  };
-
   useEffect(() => {
+    // Don't process if we don't have current metrics yet
+    if (!currentMetrics) return;
+
     const lastVisit = getLastVisit();
     
     if (lastVisit) {
@@ -39,9 +31,13 @@ export function MetricsSummaryBanner() {
     }
 
     // Save current visit for next time
-    // Note: In production, we might want to save this on unmount or at intervals
     saveLastVisit(currentMetrics);
-  }, []);
+  }, [currentMetrics]);
+
+  // Show nothing while loading
+  if (isLoading || !currentMetrics) {
+    return null;
+  }
 
   const formatMetricValue = (change: MetricChange): string => {
     const { category, current } = change;
@@ -87,6 +83,7 @@ export function MetricsSummaryBanner() {
   };
 
   // Design Variation 1: Compact Horizontal Banner
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const CompactBanner = () => {
     if (metricChanges.length === 0) return null;
 
@@ -130,14 +127,14 @@ export function MetricsSummaryBanner() {
             </div>
             <div className="flex gap-2">
               {upTrends > 0 && (
-                <Badge variant="success" className="bg-white/20 text-white border-white/30">
+                <div className="bg-white/20 text-white border border-white/30 px-3 py-1 rounded-full text-sm">
                   {upTrends} ↗ Up
-                </Badge>
+                </div>
               )}
               {downTrends > 0 && (
-                <Badge variant="danger" className="bg-white/20 text-white border-white/30">
+                <div className="bg-white/20 text-white border border-white/30 px-3 py-1 rounded-full text-sm">
                   {downTrends} ↘ Down
-                </Badge>
+                </div>
               )}
             </div>
           </div>
@@ -158,6 +155,7 @@ export function MetricsSummaryBanner() {
   };
 
   // Design Variation 3: Minimal Inline Banner
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const MinimalBanner = () => {
     if (metricChanges.length === 0) return null;
 
@@ -168,9 +166,9 @@ export function MetricsSummaryBanner() {
         <div className="flex items-center gap-2 mb-3">
           <span className="text-accent font-semibold">⏱️ Last visit: {lastVisitTime}</span>
           {significantChanges.length > 0 && (
-            <Badge variant="warning" className="text-xs">
+            <span className="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded text-xs font-medium">
               {significantChanges.length} significant change{significantChanges.length > 1 ? 's' : ''}
-            </Badge>
+            </span>
           )}
         </div>
         <div className="flex gap-4 flex-wrap">
@@ -191,6 +189,7 @@ export function MetricsSummaryBanner() {
   };
 
   // Design Variation 4: Hero Banner with Stats
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const HeroBanner = () => {
     if (metricChanges.length === 0) return null;
 

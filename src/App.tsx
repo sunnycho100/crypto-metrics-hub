@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   Header,
   KPICards,
@@ -11,8 +12,70 @@ import {
   ContactFooter,
   MetricsSummaryBanner
 } from './components';
+import { MetricsProvider, useMetrics } from './contexts/MetricsContext';
+import { fetchBTCStats } from './services/coinbase';
+import { fetchFearGreedIndex } from './services/feargreed';
+import type { MetricsSnapshot } from './services/lastVisit';
 
-function App() {
+function DashboardContent() {
+  const { updateMetrics } = useMetrics();
+
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      try {
+        // Fetch real-time data from APIs
+        const [btcStats, fearGreedData] = await Promise.all([
+          fetchBTCStats(),
+          fetchFearGreedIndex(1)
+        ]);
+
+        // Parse Fear & Greed data
+        const fgValue = parseInt(fearGreedData.data[0].value);
+        const fgClassification = fearGreedData.data[0].value_classification;
+
+        // Parse BTC stats
+        const price = parseFloat(btcStats.last);
+        const volume24h = parseFloat(btcStats.volume);
+        const priceChange24h = ((parseFloat(btcStats.last) - parseFloat(btcStats.open)) / parseFloat(btcStats.open)) * 100;
+
+        // TODO: Market cap should come from CoinGecko API when implemented
+        // For now, estimate based on price (21M BTC * price / 1 trillion)
+        const estimatedMarketCap = (21000000 * price) / 1000000000000;
+
+        const metricsSnapshot: MetricsSnapshot = {
+          price,
+          fearGreedIndex: fgValue,
+          fearGreedValue: fgClassification,
+          volume24h: volume24h / 1000000000, // Convert to billions
+          marketCap: estimatedMarketCap,
+          priceChange24h,
+        };
+
+        updateMetrics(metricsSnapshot);
+      } catch (error) {
+        console.error('Error fetching metrics:', error);
+        // Fallback to mock data if APIs fail
+        const fallbackMetrics: MetricsSnapshot = {
+          price: 102450,
+          fearGreedIndex: 43,
+          fearGreedValue: 'Fear',
+          volume24h: 28.5,
+          marketCap: 1.98,
+          priceChange24h: 2.5,
+        };
+        updateMetrics(fallbackMetrics);
+      }
+    };
+
+    // Fetch immediately
+    fetchMetrics();
+
+    // Refresh every 60 seconds
+    const interval = setInterval(fetchMetrics, 60000);
+
+    return () => clearInterval(interval);
+  }, [updateMetrics]);
+
   return (
     <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased selection:bg-primary selection:text-white overflow-x-hidden">
       <div className="flex flex-col min-h-screen">
@@ -62,6 +125,14 @@ function App() {
         </main>
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <MetricsProvider>
+      <DashboardContent />
+    </MetricsProvider>
   );
 }
 

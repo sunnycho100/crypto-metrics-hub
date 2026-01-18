@@ -16,6 +16,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.9.0] - 2026-01-18
+### Added
+- **Metrics Summary Banner** - Personalized landing page showing changes since last visit with 4 design variations (Card, Compact, Minimal, Hero)
+- **Last visit tracking** - localStorage-based system tracks user visits and creates metric snapshots for comparison
+- **Change detection** - Automatically calculates and displays price, Fear & Greed, volume, and market cap changes
+- **Time formatting** - Human-readable time since last visit ("2 hours ago", "3 days ago", etc.)
+- **Significant change highlighting** - Emphasizes important changes with visual indicators (arrows, colors, borders)
+- **First visit welcome** - Dedicated welcome banner for new users explaining the feature
+- **MetricsContext** - Centralized React Context for managing real-time metrics across all components
+- **Real-time data integration** - Connected banner to live Coinbase and Fear & Greed APIs with 60-second auto-refresh
+- **Trend indicators** - Visual up/down arrows with percentage/absolute changes for each metric
+- **Multiple design options** - 4 switchable UI variations from minimal to hero banner style
+
+### Improved
+- **Data flow architecture** - Implemented context-based data management for easy consumption by any component
+- **Type safety** - Full TypeScript coverage for metrics snapshots and change calculations
+- **Error handling** - Graceful fallback to mock data if APIs fail
+- **Loading states** - Banner hidden during initial data fetch for cleaner UX
+
+### Changed
+- **README emojis** - Replaced all emojis with text-based alternatives like [V], [TODO], [API] for better compatibility
+
+---
+
 ## [1.8.4] - 2026-01-15
 ### Fixed
 - **Volume tab spacing** - Fixed inconsistent spacing between metric rows in 24H Volume Analytics modal to match other popups
