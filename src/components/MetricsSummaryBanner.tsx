@@ -143,20 +143,20 @@ export function MetricsSummaryBanner() {
 
     return (
       <Card className="mb-6 overflow-hidden">
-        <div className="bg-gradient-to-r from-accent to-purple p-6 text-white">
+        <div className="bg-gradient-to-r from-[#5b8ff9] to-[#9b59b6] p-6">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h2 className="text-2xl font-bold mb-1">Welcome Back</h2>
-              <p className="text-white/80">Since your last visit {lastVisitTime}</p>
+              <h2 className="text-2xl font-bold mb-1 text-slate-900 dark:text-white">Welcome Back</h2>
+              <p className="text-slate-700 dark:text-white/80">Since your last visit {lastVisitTime}</p>
             </div>
             <div className="flex gap-2">
               {upTrends > 0 && (
-                <div className="bg-white/20 text-white border border-white/30 px-3 py-1 rounded-full text-sm">
+                <div className="bg-white/20 dark:bg-white/20 text-slate-900 dark:text-white border border-slate-300 dark:border-white/30 px-3 py-1 rounded-full text-sm">
                   {upTrends} ↗ Up
                 </div>
               )}
               {downTrends > 0 && (
-                <div className="bg-white/20 text-white border border-white/30 px-3 py-1 rounded-full text-sm">
+                <div className="bg-white/20 dark:bg-white/20 text-slate-900 dark:text-white border border-slate-300 dark:border-white/30 px-3 py-1 rounded-full text-sm">
                   {downTrends} ↘ Down
                 </div>
               )}

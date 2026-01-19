@@ -16,6 +16,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.9.4] - 2026-01-19
+### Fixed
+- **MetricsSummaryBanner dark mode visibility** - Fixed "Welcome Back" text being invisible in light mode by using theme-aware text colors (text-slate-900 dark:text-white) instead of hardcoded text-white
+- **Banner badge visibility** - Updated Up/Down trend badges to use proper theme-aware colors and borders for both light and dark modes
+
+### Added
+- **Tailwind color definitions** - Added missing accent (#5b8ff9), purple (#9b59b6), and orange (#f39c12) colors to Tailwind config
+- **Explicit gradient colors** - Updated banner gradient to use explicit hex values for consistent rendering across themes
+
 ## [1.9.2] - 2026-01-18
 ### Fixed
 

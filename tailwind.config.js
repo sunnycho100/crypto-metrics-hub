@@ -16,6 +16,9 @@ export default {
         "text-secondary": "#9dabb9",
         "success": "#0bda5b",
         "danger": "#ef4444",
+        "accent": "#5b8ff9",
+        "purple": "#9b59b6",
+        "orange": "#f39c12",
       },
       fontFamily: {
         "display": ["Manrope", "sans-serif"]
