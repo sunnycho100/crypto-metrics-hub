@@ -25,6 +25,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Tailwind color definitions** - Added missing accent (#5b8ff9), purple (#9b59b6), and orange (#f39c12) colors to Tailwind config
 - **Explicit gradient colors** - Updated banner gradient to use explicit hex values for consistent rendering across themes
 
+### In Progress
+- **SQLite database migration** - Converting from JSON file storage to SQLite database for user authentication and data persistence
+  - Created database service with schema for users, sessions, and preferences
+  - Updated userStore to use database queries instead of file I/O
+  - Modified auth routes to handle database operations with proper field name conversions (snake_case to camelCase)
+  - Added database initialization and graceful shutdown handlers
+  - Database file location: `server/data/btc_metrics.db`
+  - Note: Implementation not yet complete, server initialization pending fixes
+
 ## [1.9.2] - 2026-01-18
 ### Fixed
 

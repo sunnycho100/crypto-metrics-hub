@@ -14,6 +14,9 @@ dist/
 server/.env
 server/.env.local
 server/data/users.json
+server/data/*.db
+server/data/*.db-shm
+server/data/*.db-wal
 
 # IDE
 .vscode/

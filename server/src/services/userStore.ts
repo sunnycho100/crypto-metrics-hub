@@ -1,60 +1,53 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Store users in a JSON file (temporary solution)
-// TODO: Replace with proper database (PostgreSQL, MongoDB, etc.)
-const USERS_FILE = path.join(__dirname, '../../data/users.json');
+import { userQueries } from './database.js';
 
 export interface User {
   id: string;
   email: string;
   password: string;
   name: string;
-  createdAt: string;
+  created_at: string;
+  updated_at?: string;
+  last_login?: string;
 }
 
-// Ensure data directory and file exist
-async function ensureDataFile(): Promise<void> {
-  const dataDir = path.dirname(USERS_FILE);
-  
-  try {
-    await fs.access(dataDir);
-  } catch {
-    await fs.mkdir(dataDir, { recursive: true });
-  }
-
-  try {
-    await fs.access(USERS_FILE);
-  } catch {
-    await fs.writeFile(USERS_FILE, '[]', 'utf-8');
-  }
-}
-
-// Read all users from file
-export async function readUsers(): Promise<User[]> {
-  await ensureDataFile();
-  const data = await fs.readFile(USERS_FILE, 'utf-8');
-  return JSON.parse(data);
-}
-
-// Write users to file
-export async function writeUsers(users: User[]): Promise<void> {
-  await ensureDataFile();
-  await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2), 'utf-8');
+// Create a new user
+export function createUser(user: Omit<User, 'updated_at' | 'last_login'>): User {
+  userQueries.create.run(user.id, user.email, user.password, user.name, user.created_at);
+  return user;
 }
 
 // Find user by email
-export async function findUserByEmail(email: string): Promise<User | undefined> {
-  const users = await readUsers();
-  return users.find((user) => user.email.toLowerCase() === email.toLowerCase());
+export function findUserByEmail(email: string): User | undefined {
+  return userQueries.findByEmail.get(email) as User | undefined;
 }
 
 // Find user by ID
-export async function findUserById(id: string): Promise<User | undefined> {
-  const users = await readUsers();
-  return users.find((user) => user.id === id);
+export function findUserById(id: string): User | undefined {
+  return userQueries.findById.get(id) as User | undefined;
+}
+
+// Update last login timestamp
+export function updateLastLogin(userId: string, timestamp: string): void {
+  userQueries.updateLastLogin.run(timestamp, userId);
+}
+
+// Get all users (without passwords)
+export function getAllUsers(): Omit<User, 'password'>[] {
+  return userQueries.getAll.all() as Omit<User, 'password'>[];
+}
+
+// Delete user
+export function deleteUser(userId: string): void {
+  userQueries.delete.run(userId);
+}
+
+// Legacy compatibility functions (async wrappers)
+export async function readUsers(): Promise<User[]> {
+  return userQueries.getAll.all() as User[];
+}
+
+export async function writeUsers(users: User[]): Promise<void> {
+  // This function is no longer needed with SQLite
+  // Kept for backward compatibility but does nothing
+  console.warn('writeUsers is deprecated - database writes happen automatically');
 }

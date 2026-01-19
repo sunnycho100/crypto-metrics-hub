@@ -2,7 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
-import { readUsers, writeUsers, findUserByEmail, findUserById } from '../services/userStore.js';
+import { createUser, findUserByEmail, findUserById, updateLastLogin } from '../services/userStore.js';
 
 const router = express.Router();
 
@@ -34,7 +34,7 @@ router.post('/register', async (req, res) => {
     }
 
     // Check if user exists
-    const existingUser = await findUserByEmail(email);
+    const existingUser = findUserByEmail(email);
     if (existingUser) {
       return res.status(409).json({ error: 'User with this email already exists' });
     }
@@ -43,29 +43,28 @@ router.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create user
-    const newUser = {
+    const newUser = createUser({
       id: uuidv4(),
       email,
       password: hashedPassword,
       name: name || email.split('@')[0],
-      createdAt: new Date().toISOString(),
-    };
-
-    // Save user
-    const users = await readUsers();
-    users.push(newUser);
-    await writeUsers(users);
+      created_at: new Date().toISOString(),
+    });
 
     // Generate token
     const token = jwt.sign({ userId: newUser.id }, JWT_SECRET, {
       expiresIn: JWT_EXPIRES_IN,
     });
 
-    // Return user (without password)
-    const { password: _, ...userWithoutPassword } = newUser;
+    // Return user (without password) - convert to camelCase for API response
     res.status(201).json({
       message: 'User created successfully',
-      user: userWithoutPassword,
+      user: {
+        id: newUser.id,
+        email: newUser.email,
+        name: newUser.name,
+        createdAt: newUser.created_at,
+      },
       token,
     });
   } catch (error) {
@@ -98,7 +97,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Find user
-    const user = await findUserByEmail(email);
+    const user = findUserByEmail(email);
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
@@ -109,16 +108,24 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
+    // Update last login
+    updateLastLogin(user.id, new Date().toISOString());
+
     // Generate token
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, {
       expiresIn: JWT_EXPIRES_IN,
     });
 
-    // Return user (without password)
-    const { password: _, ...userWithoutPassword } = user;
+    // Return user (without password) - convert to camelCase for API response
     res.json({
       message: 'Login successful',
-      user: userWithoutPassword,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        createdAt: user.created_at,
+        lastLogin: new Date().toISOString(),
+      },
       token,
     });
   } catch (error) {
@@ -142,13 +149,21 @@ router.get('/me', async (req, res) => {
       return res.json({ user: DEV_USER });
     }
 
-    const user = await findUserById(decoded.userId);
+    const user = findUserById(decoded.userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const { password: _, ...userWithoutPassword } = user;
-    res.json({ user: userWithoutPassword });
+    // Convert to camelCase for API response
+    res.json({ 
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        createdAt: user.created_at,
+        lastLogin: user.last_login,
+      }
+    });
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(401).json({ error: 'Invalid token' });
