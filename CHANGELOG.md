@@ -16,6 +16,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.9.5] - 2026-01-20
+### Improved
+- **Welcome Back banner visual enhancement** - Significantly enlarged "Welcome Back" heading from text-2xl to text-4xl/5xl for better prominence and professional appearance
+- **Professional landing animations** - Implemented smooth, staggered entrance animations with time delays for banner, text, badges, and metric cards using custom CSS keyframes
+- **Animation system** - Added fadeIn, fadeInUp, slideDown, and slideUp animations with cubic-bezier easing for polished, modern feel
+- **Metric card cascade effect** - Each metric card animates in sequentially with individual delays (0.1s increments) creating a professional cascade effect
+
+### Fixed
+- **Infinite animation loop** - Fixed banner animations re-triggering on every render by adding hasAnimated state flag
+- **Empty metrics display** - Smart display logic now shows "Markets are relatively stable" message when no significant changes detected instead of forcing empty metric cards
+- **Animation performance** - Animations play only once on initial load and are removed from DOM after completion to prevent re-triggering
+
+### Changed
+- **Banner padding and spacing** - Increased header padding (p-6 → p-8) and text sizes for better visual hierarchy
+- **Badge styling** - Enhanced Up/Down trend badges with larger padding and font-weight for improved readability
+- **Conditional metrics rendering** - Metric cards only display when significant changes exist, providing cleaner UX for recent visits
+
 ## [1.9.4] - 2026-01-19
 ### Fixed
 - **MetricsSummaryBanner dark mode visibility** - Fixed "Welcome Back" text being invisible in light mode by using theme-aware text colors (text-slate-900 dark:text-white) instead of hardcoded text-white

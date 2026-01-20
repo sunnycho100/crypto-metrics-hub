@@ -15,6 +15,7 @@ export function MetricsSummaryBanner() {
   const [metricChanges, setMetricChanges] = useState<MetricChange[]>([]);
   const [isFirstVisit, setIsFirstVisit] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
+  const [hasAnimated, setHasAnimated] = useState(false);
 
   useEffect(() => {
     // Don't process if we don't have current metrics yet
@@ -46,6 +47,9 @@ export function MetricsSummaryBanner() {
 
     // Mark as initialized so we don't recalculate on every metric update
     setHasInitialized(true);
+    
+    // Trigger animation only once
+    setTimeout(() => setHasAnimated(true), 100);
   }, [currentMetrics, hasInitialized]);
 
   // Save current visit ONLY on component unmount (when user leaves)
@@ -141,39 +145,62 @@ export function MetricsSummaryBanner() {
     const upTrends = significantChanges.filter(c => c.trend === 'up').length;
     const downTrends = significantChanges.filter(c => c.trend === 'down').length;
 
+    // Only show metrics if we have significant changes, otherwise show simple welcome
+    const hasSignificantChanges = significantChanges.length > 0;
+
     return (
-      <Card className="mb-6 overflow-hidden">
-        <div className="bg-gradient-to-r from-[#5b8ff9] to-[#9b59b6] p-6">
+      <Card className={`mb-6 overflow-hidden ${!hasAnimated ? 'animate-slideDown' : ''}`}>
+        <div className={`bg-gradient-to-r from-[#5b8ff9] to-[#9b59b6] p-8 ${!hasAnimated ? 'animate-fadeIn' : ''}`}>
           <div className="flex items-center justify-between flex-wrap gap-4">
-            <div>
-              <h2 className="text-2xl font-bold mb-1 text-slate-900 dark:text-white">Welcome Back</h2>
-              <p className="text-slate-700 dark:text-white/80">Since your last visit {lastVisitTime}</p>
+            <div className={!hasAnimated ? 'animate-slideUp' : ''}>
+              <h2 className="text-4xl md:text-5xl font-bold mb-2 text-slate-900 dark:text-white">
+                Welcome Back
+              </h2>
+              <p className="text-lg text-slate-700 dark:text-white/80">
+                Since your last visit {lastVisitTime}
+              </p>
             </div>
-            <div className="flex gap-2">
-              {upTrends > 0 && (
-                <div className="bg-white/20 dark:bg-white/20 text-slate-900 dark:text-white border border-slate-300 dark:border-white/30 px-3 py-1 rounded-full text-sm">
-                  {upTrends} ↗ Up
-                </div>
-              )}
-              {downTrends > 0 && (
-                <div className="bg-white/20 dark:bg-white/20 text-slate-900 dark:text-white border border-slate-300 dark:border-white/30 px-3 py-1 rounded-full text-sm">
-                  {downTrends} ↘ Down
-                </div>
-              )}
-            </div>
+            {hasSignificantChanges && (
+              <div className={`flex gap-2 ${!hasAnimated ? 'animate-slideUp' : ''}`} style={{ animationDelay: '0.2s' }}>
+                {upTrends > 0 && (
+                  <div className="bg-white/20 dark:bg-white/20 text-slate-900 dark:text-white border border-slate-300 dark:border-white/30 px-4 py-2 rounded-full text-base font-semibold">
+                    {upTrends} ↗ Up
+                  </div>
+                )}
+                {downTrends > 0 && (
+                  <div className="bg-white/20 dark:bg-white/20 text-slate-900 dark:text-white border border-slate-300 dark:border-white/30 px-4 py-2 rounded-full text-base font-semibold">
+                    {downTrends} ↘ Down
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-6">
-          {metricChanges.map((change, idx) => (
-            <div key={idx} className={`flex items-start gap-3 p-3 rounded-lg transition-all ${
-              change.isSignificant 
-                ? 'bg-surface-2 hover:bg-surface border border-border shadow-sm' 
-                : 'bg-surface hover:bg-surface-2 opacity-75'
-            }`}>
-              {renderChangeIndicator(change)}
-            </div>
-          ))}
-        </div>
+        
+        {/* Only show metric cards if we have significant changes */}
+        {hasSignificantChanges ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-6">
+            {metricChanges.map((change, idx) => (
+              <div 
+                key={idx} 
+                className={`flex items-start gap-3 p-3 rounded-lg transition-all ${!hasAnimated ? 'animate-fadeInUp' : ''} ${
+                  change.isSignificant 
+                    ? 'bg-surface-2 hover:bg-surface border border-border shadow-sm hover:shadow-md' 
+                    : 'bg-surface hover:bg-surface-2 opacity-75'
+                }`}
+                style={{ animationDelay: `${0.4 + idx * 0.1}s` }}
+              >
+                {renderChangeIndicator(change)}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-6 text-center">
+            <p className="text-muted">
+              Markets are relatively stable since your last visit. All metrics are within normal ranges.
+            </p>
+          </div>
+        )}
       </Card>
     );
   };
