@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 const DB_PATH = path.join(__dirname, '../../data/btc_metrics.db');
 
 // Initialize database
-export const db = new Database(DB_PATH, { verbose: console.log });
+export const db = new Database(DB_PATH);
 
 // Enable foreign keys
 db.pragma('foreign_keys = ON');
@@ -54,6 +54,9 @@ export function initializeDatabase() {
 
   console.log('✅ Database initialized at:', DB_PATH);
 }
+
+// Initialize tables first (before creating prepared statements)
+initializeDatabase();
 
 // User queries
 export const userQueries = {

@@ -2,13 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
-import { initializeDatabase, startSessionCleanup, closeDatabase } from './services/database.js';
+import heatmapRoutes from './routes/heatmap.js';
+import { startSessionCleanup, closeDatabase } from './services/database.js';
 
 // Load environment variables
 dotenv.config();
 
-// Initialize database
-initializeDatabase();
+// Start session cleanup (database is already initialized in database.ts)
 startSessionCleanup();
 
 const app = express();
@@ -23,6 +23,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/heatmap', heatmapRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -46,5 +47,7 @@ process.on('SIGTERM', () => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`📝 Auth endpoints available at http://localhost:${PORT}/api/auth`);
+  console.log(`� Heatmap endpoint: http://localhost:${PORT}/api/heatmap/liquidation-levels`);
   console.log(`💾 Database ready at: server/data/btc_metrics.db`);
+  console.log(`\n✅ Backend is ready! Frontend should connect successfully.`);
 });

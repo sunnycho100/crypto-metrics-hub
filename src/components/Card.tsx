@@ -126,12 +126,12 @@ export const SmallMetricCard: React.FC<SmallMetricCardProps> = ({
           </span>
         )}
       </div>
-      <div className="h-8 w-full flex items-end gap-0.5 mt-auto">
+      <div className="h-12 w-full flex items-end gap-1 mt-auto">
         {barData.map((height, index) => (
           <div 
             key={index}
-            className={`${barColor} w-full rounded-sm`}
-            style={{ height: `${height}%`, opacity: 0.4 + (index * 0.15) }}
+            className={`${barColor} w-full rounded-t-md transition-all duration-300 hover:opacity-100`}
+            style={{ height: `${height}%`, opacity: 0.6 + (index * 0.1) }}
           />
         ))}
       </div>

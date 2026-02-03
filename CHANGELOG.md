@@ -16,6 +16,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.10.0] - 2026-02-02
+### Added
+- **Liquidation Levels Heatmap** - Complete implementation of real-time liquidation levels visualization using CoinGlass API
+  - Backend CoinGlass adapter service with vendor-neutral normalization schema
+  - Intelligent 60-second caching system for optimal API usage and performance
+  - RESTful API endpoints: `/api/heatmap/liquidation-levels`, `/api/heatmap/cache-status`, `/api/heatmap/clear-cache`
+  - Interactive canvas-based heatmap visualization with price buckets on Y-axis
+  - Color intensity gradient (blue to red) showing liquidation concentration at each price level
+  - Real-time BTC price overlay as yellow dashed horizontal line
+  - Hover tooltips displaying long/short liquidation amounts and ratios at each price level
+  - Auto-refresh every 60 seconds for live data updates
+  - Supports multiple exchange scopes: Binance, aggregated, Bybit, OKX
+  - Error handling with graceful fallbacks and stale cache recovery
+  - Integrated into main dashboard between Price Chart and On-Chain Metrics sections
+
+### Technical
+- **TypeScript interfaces** - Created normalized heatmap schema with vendor-neutral design pattern for future provider swapping
+- **Native fetch API** - Used browser's native fetch instead of axios to avoid additional dependencies
+- **Canvas rendering** - High-performance canvas-based visualization with smart scaling and color mapping
+- **Cache management** - Built-in cache status monitoring and manual cache clearing capabilities
+
 ## [1.9.5] - 2026-01-20
 ### Improved
 - **Welcome Back banner visual enhancement** - Significantly enlarged "Welcome Back" heading from text-2xl to text-4xl/5xl for better prominence and professional appearance

@@ -12,6 +12,7 @@ import {
   ContactFooter,
   MetricsSummaryBanner
 } from './components';
+import LiquidationHeatmapCard from './components/LiquidationHeatmapCard';
 import { MetricsProvider, useMetrics } from './contexts/MetricsContext';
 import { fetchBTCStats } from './services/coinbase';
 import { fetchFearGreedIndex } from './services/feargreed';
@@ -105,6 +106,9 @@ function DashboardContent() {
             <div className="xl:col-span-8 flex flex-col gap-6 relative z-0">
               {/* Price Chart */}
               <PriceChartCard />
+              
+              {/* Liquidation Heatmap */}
+              <LiquidationHeatmapCard />
               
               {/* On-Chain Metrics Row */}
               <OnChainMetrics />
